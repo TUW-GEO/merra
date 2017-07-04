@@ -29,16 +29,6 @@ out_path = os.path.join(usr_path, 'exchange/students/fzaussin/BACKUP/D/MERRA/MER
 start_date = datetime(2014,1,31)
 end_date = datetime(2014,12,31)
 
-""" only an idea, bisschen hässlich...
-# parameters: get all available lnd params from some image serving as template
-img_path = os.path.join('/home/fzaussin/shares/exchange/students/fzaussin/MERRA/MERRA2_MONTHLY/'
-                        'M2TMNXLND.5.12.4/1980/MERRA2_100.tavgM_2d_lnd_Nx.198001.nc4')
-template_img = MERRA_Img(img_path)
-
-# store params in list
-param_list = template_img.show_params(True)
-"""
-
 # specific soil moisture params
 param_list = ['GWETPROF', 'GWETROOT', 'GWETTOP']
 
