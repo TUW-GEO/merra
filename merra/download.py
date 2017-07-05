@@ -1,5 +1,5 @@
 """
-Download GLDAS.
+Download MERRA.
 """
 import os
 import sys
