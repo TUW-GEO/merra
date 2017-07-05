@@ -218,7 +218,6 @@ def main(args):
                             fname='', subdirs=args.urlsubdirs)
     fname_create_fn = partial(create_dt_fpath, root=args.localroot,
                               fname='', subdirs=args.localsubdirs)
-
     down_func = partial(download,
                         num_proc=args.n_proc,
                         username=args.username,
@@ -235,4 +234,4 @@ def run():
 
 if __name__=='__main__':
     run()
-    #python download.py ~/gldas_data --username fzaussin --password HeT8zzDzOEea
+    #python download.py ~/merra-daily -s 1981-01-01 --username fzaussin --password HeT8zzDzOEea
