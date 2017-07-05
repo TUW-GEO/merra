@@ -10,13 +10,10 @@ Created on 02-02-2017
 
 import os
 from datetime import timedelta, date, datetime
-
 import monthdelta
-
 
 import numpy as np
 import pandas as pd
-
 from netCDF4 import Dataset
 
 import pygeogrids
@@ -204,23 +201,24 @@ class MERRA_Img(ImageBase):
         image : object
             pygeobase.object_base.Image object
         """
-        return
+        raise NotImplementedError()
 
     def flush(self):
         """
         Flush data.
         """
-        return
+        pass
 
     def close(self):
         """
         Close file.
         """
-        return
+        pass
 
 
 class MERRA2_Ds(MultiTemporalImageBase):
     """
+    Monthly data
     read/write a sequence of multi temporal images under a given path
     """
     def __init__(self, data_path, parameter='GWETPROF', array_1D=False):
@@ -278,6 +276,64 @@ class MERRA2_Ds(MultiTemporalImageBase):
 
         return timestamps
 
+class MERRA2_Ds_1h(MultiTemporalImageBase):
+    """
+    1 hourly data
+    read/write a sequence of multi temporal images under a given path
+    """
+    def __init__(self, data_path, parameter='GWETPROF', array_1D=False):
+        """
+
+        :param data_path:
+        :param parameters:
+        """
+
+        # TODO: whaaaaat is this?
+        ioclass_kws = {'parameter': parameter,
+                       'array_1D': array_1D}
+
+        # define sub paths of root folder
+        sub_path = ['%Y','%m']
+
+        # define fn template for 1h data
+        fn_template = "MERRA2_*.tavg1_2d_lnd_Nx.{datetime}.nc4"
+
+        super(MERRA2_Ds_1h, self).__init__(path=data_path,
+                                        ioclass=MERRA_Img,
+                                        fname_templ=fn_template,
+                                        # monthly data
+                                        datetime_format="%Y%m%d",
+                                        subpath_templ=sub_path,
+                                        exact_templ=False,
+                                        ioclass_kws=ioclass_kws)
+
+    def tstamps_for_daterange(self, start_date, end_date):
+        """
+        return timestamps for given date range
+
+        Parameters
+        ----------
+        start_date: datetime
+            start of date range
+        end_date: datetime
+            end of date range
+
+        Returns
+        -------
+        timestamps : list
+            list of datetime objects of each available image between
+            start_date and end_date
+        """
+        img_offsets = np.array([timedelta(hours=i, minutes=30) for i in range(24)])
+
+        timestamps = []
+        diff = end_date - start_date
+        for i in range(diff.days + 1):
+            daily_dates = start_date + timedelta(days=i) + img_offsets
+            timestamps.extend(daily_dates.tolist())
+
+        return timestamps
+
 
 class MERRA2_Ts(GriddedNcOrthoMultiTs):
     """
@@ -299,7 +355,29 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
 
 
 if __name__ == '__main__':
+    # test 1h data read
+    import matplotlib.pyplot as plt
+    import datetime
 
+
+    # plot hourly ts data
+    ts_path = '/home/fzaussin/Desktop/merra-1h-reshuffling-test'
+
+    # read ts at gp
+    gpi = 100000
+    ts = MERRA2_Ts(ts_path).read(gpi)
+    print ts, type(ts)
+    ts_daily = ts.resample('D').sum()
+
+    # lon and lat of gp
+    lon, lat = MERRACellgrid().gpi2lonlat(gpi)
+    print lon, lat
+
+    ts.plot(title='1h')
+    ts_daily.plot(title='1d')
+    plt.show()
+
+    """
     # TEST
     import matplotlib.pyplot as plt
 
@@ -320,3 +398,5 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
     ts.plot(ax=ax)
     plt.show()
+    """
+

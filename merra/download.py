@@ -234,4 +234,4 @@ def run():
 
 if __name__=='__main__':
     run()
-    #python download.py ~/merra-daily -s 1981-01-01 --username fzaussin --password HeT8zzDzOEea
+    #python download.py ~/merra-daily -s 1980-01-01 -e 1980-12-31 --username fzaussin --password HeT8zzDzOEea
