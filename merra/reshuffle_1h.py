@@ -21,7 +21,7 @@ import argparse
 from datetime import datetime
 
 from repurpose.img2ts import Img2Ts
-from interface import MERRA2_Ds_1h
+from interface import MERRA2_Ds_hourly
 
 from pygeogrids import BasicGrid
 
@@ -58,9 +58,9 @@ def reshuffle(in_path,
 
     # define input dataset
     # TODO: MERRA2_Ds or MERRA_img ? -> needs to be ds !
-    input_dataset = MERRA2_Ds_1h(in_path,
-                              parameters,
-                              array_1D=True) # TODO: understand why true
+    input_dataset = MERRA2_Ds_hourly(in_path,
+                                     parameters,
+                                     array_1D=True) # TODO: understand why true
 
     # create out_path directory if it does not exist yet
     if not os.path.exists(out_path):
