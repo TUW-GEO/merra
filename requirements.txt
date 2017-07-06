@@ -1,4 +1,14 @@
-# Add your requirements here like:
-# numpy
-# scipy>=0.9
-
+pyproj
+pygeogrids
+pygrib
+numpy
+pygeobase
+datedown>=0.3
+trollsift
+pytesmo
+netcdf4==1.2.2
+pyresample
+repurpose
+pynetcf
+monthdelta
+datetime
