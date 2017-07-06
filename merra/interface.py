@@ -1,16 +1,43 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
+# Copyright (c) 2014,Vienna University of Technology, Department of Geodesy and Geoinformation
+# All rights reserved.
+
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#   * Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#    * Neither the name of the Vienna University of Technology, Department of
+#      Geodesy and Geoinformation nor the names of its contributors may be
+#      used to endorse or promote products derived from this software without
+#      specific prior written permission.
+
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL VIENNA UNIVERSITY OF TECHNOLOGY,
+# DEPARTMENT OF GEODESY AND GEOINFORMATION BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 """
-Created on 02-02-2017 
+Created on 02-02-2017
 
 @author: fzaussin
 @email: felix.zaussinger@geo.tuwien.ac.at
 """
 
 import os
-from datetime import timedelta, date, datetime
 import monthdelta
+from datetime import timedelta
 
 import numpy as np
 import pandas as pd
@@ -26,25 +53,25 @@ from grid import MERRACellgrid
 
 class MERRA_Img(ImageBase):
     """
-    Class for reading one MERRA 2 nc file in native resolution.
+    Class for reading one MERRA2 nc file in native resolution.
 
     Parameters
     ----------
-
+    filename: string
+        filename of the MERRA2 nc file
+    mode: string, optional
+        mode of opening the file, only 'r' is implemented at the moment
+    parameter : string or list, optional
+        one or list of parameters to read, see MERRA2 documentation for more information
+        Default : 'GWETTOP'
+    array_1D: boolean, optional
+        if set then the data is read into 1D arrays. Needed for some legacy code.
     """
-    def __init__(self, filename, mode='r', parameter='GWETPROF', array_1D=False):
-        """
 
-        :param filename:
-        :param mode:
-        :param parameter:
-        :param array_1D:
-        """
-
+    def __init__(self, filename, mode='r', parameter='GWETTOP', array_1D=False):
         super(MERRA_Img, self).__init__(filename, mode=mode)
 
-
-        if type(parameter) != list:
+        if not isinstance(parameter, list):
             parameter = [parameter]
         self.parameters = parameter
         self.fill_values = np.repeat(1e15, 361 * 576)
@@ -52,12 +79,13 @@ class MERRA_Img(ImageBase):
         self.array_1D = array_1D
         self.filename = filename
 
-
     def open_file(self):
-
         """
+        Try to open dataset.
 
-        :return: netCDF4.Dataset object
+        Returns
+        -------
+        dataset : netCDF4.Dataset object
         """
         try:
             dataset = Dataset(self.filename)
@@ -73,7 +101,11 @@ class MERRA_Img(ImageBase):
     def show_params(self, var_list=False):
         """
         Lists all parameter names and their units
-        :return: list of available parameters
+
+        Returns
+        -------
+        params: pd.DataFrame
+            list of available parameters
         """
         # read file
         # TODO: error handling, implement variable groups
@@ -81,7 +113,9 @@ class MERRA_Img(ImageBase):
 
         # check for number of vars and create df as placeholder
         param_count = len(dataset.variables.items())
-        params = pd.DataFrame(index=range(param_count), columns=['var_name', 'long_name', 'units'])
+        params = pd.DataFrame(
+            index=range(param_count), columns=[
+                'var_name', 'long_name', 'units'])
 
         # iterate over var list and add info row-wise to df
         for v in range(param_count):
@@ -93,7 +127,8 @@ class MERRA_Img(ImageBase):
 
         if not var_list:
             # return extensive description as df
-            print("\nAvailable Parameters:\n{1}\n{0}\n{1}").format(params, '_' * 80)
+            print("\nAvailable Parameters:\n{1}\n{0}\n{1}").format(
+                params, '_' * 80)
             return params
         else:
             # return list of params
@@ -101,22 +136,29 @@ class MERRA_Img(ImageBase):
             lnd_vars = params['var_name'][3:]
             return list(lnd_vars)
 
-
     def read(self, timestamp=None):
         """
+        Reads single image for given timestamp.
 
-        :param timestamp:
-        :return:
+        Parameters
+        ----------
+        timestamp : datetime.datetime
+            exact timestamp of the image
+
+        Returns
+        -------
+        Image : object
+            pygeobase.object_base.Image object
         """
         print "{1}\nReading file: {0}".format(self.filename,
-                                             '_' * 80)
+                                              '_' * 80)
 
         # return selected parameters and metadata for an image
         return_img = {}
         return_metadata = {}
 
         # horizontal soil layers
-        layers = {'dzgt' : 1}
+        layers = {'dzgt': 1}
 
         # open dataset
         dataset = self.open_file()
@@ -137,18 +179,19 @@ class MERRA_Img(ImageBase):
                 for attr_name in variable.ncattrs():
                     # Only extract metadata of the attributes in the list
                     if attr_name in ['long_name', 'units']:
-                        param_metadata.update({attr_name: getattr(variable, attr_name)})
+                        param_metadata.update(
+                            {attr_name: getattr(variable, attr_name)})
 
-                # initialize parameter data as masked array, set fill value to 1e+15
+                # initialize parameter data as masked array, set fill value to
+                # 1e+15
                 param_data = dataset.variables[parameter][:]
 
                 # GWETTOP is returned as nd-array in place of an masked array
                 # type handling
 
                 if not isinstance(param_data, np.ma.masked_array):
-                    print("Parameter {} is of type {}. Should be {}.").format(parameter,
-                                                                              type(param_data),
-                                                                              np.ma.masked_array)
+                    print("Parameter {} is of type {}. Should be {}.").format(
+                        parameter, type(param_data), np.ma.masked_array)
                     # flatten nd-array
                     param_data = param_data.flatten()
                 else:
@@ -159,9 +202,11 @@ class MERRA_Img(ImageBase):
                     # masked array to 1d nd-array
                     param_data = np.ma.getdata(param_data).flatten()
 
-                # update data and metadata dicts depending on declared parameters
-                return_img.update({parameter : param_data[self.grid.activegpis]})
-                return_metadata.update({parameter : param_metadata})
+                # update data and metadata dicts depending on declared
+                # parameters
+                return_img.update(
+                    {parameter: param_data[self.grid.activegpis]})
+                return_metadata.update({parameter: param_metadata})
 
                 # Check for corrupt files
                 try:
@@ -169,11 +214,10 @@ class MERRA_Img(ImageBase):
                 except KeyError:
                     path, file_name = os.path.split(self.filename)
                     print '%s in %s is corrupt - filling image with NaN values' % (parameter, file_name)
-                    return_img[parameter] = np.empty(self.grid.n_gpi).fill(np.nan)
+                    return_img[parameter] = np.empty(
+                        self.grid.n_gpi).fill(np.nan)
                     return_metadata['corrupt_parameters'].append()
 
-        # 1D case
-        # TODO: what is 1d case?
         if self.array_1D:
             return Image(self.grid.activearrlon,
                          self.grid.activearrlat,
@@ -181,9 +225,11 @@ class MERRA_Img(ImageBase):
                          return_metadata,
                          timestamp)
         else:
-            # iterate trough return_img dict and reshape nd-array to 361 x 576 matrix
+            # iterate trough return_img dict and reshape nd-array to 361 x 576
+            # matrix
             for key in return_img:
-                return_img[key] = np.flipud(return_img[key].reshape((361, 576)))
+                return_img[key] = np.flipud(
+                    return_img[key].reshape((361, 576)))
 
             # return Image object for called parameters
             return Image(np.flipud(self.grid.activearrlon.reshape((361, 576))),
@@ -202,6 +248,7 @@ class MERRA_Img(ImageBase):
             pygeobase.object_base.Image object
         """
         raise NotImplementedError()
+        pass
 
     def flush(self):
         """
@@ -216,21 +263,29 @@ class MERRA_Img(ImageBase):
         pass
 
 
-class MERRA2_Ds(MultiTemporalImageBase):
+class MERRA2_Ds_monthly(MultiTemporalImageBase):
     """
-    Monthly data
-    read/write a sequence of multi temporal images under a given path
+    Class for reading the monthly merra2 data. Read image stack between
+    start date and end date under a given path.
     """
-    def __init__(self, data_path, parameter='GWETPROF', array_1D=False):
+
+    def __init__(self, data_path, parameter='GWETTOP', array_1D=False):
+        """
+        Initialize MERRA2_Ds object with a given path.
+
+        Parameters
+        ----------
+        data_path : string
+            path to the nc files
+        parameter : string or list, optional
+            one or list of parameters to read, see MERRA2 documentation for more information
+            Default : 'GWETTOP'
+        array_1D: boolean, optional
+            if set then the data is read into 1D arrays. Needed for some legacy code.
         """
 
-        :param data_path:
-        :param parameters:
-        """
-
-        # TODO: whaaaaat is this?
-        ioclass_kws = {'parameter' : parameter,
-                       'array_1D' : array_1D}
+        ioclass_kws = {'parameter': parameter,
+                       'array_1D': array_1D}
 
         # define sub paths of root folder
         sub_path = ['%Y']
@@ -238,24 +293,24 @@ class MERRA2_Ds(MultiTemporalImageBase):
         # define fn template
         fn_template = "MERRA2_*.tavgM_2d_lnd_Nx.{datetime}.nc4"
 
-        super(MERRA2_Ds, self).__init__(path=data_path,
-                                        ioclass=MERRA_Img,
-                                        fname_templ=fn_template,
-                                        # monthly data
+        super(MERRA2_Ds_monthly, self).__init__(path=data_path,
+                                                ioclass=MERRA_Img,
+                                                fname_templ=fn_template,
+                                                # monthly data
                                         datetime_format="%Y%m",
-                                        subpath_templ=sub_path,
-                                        exact_templ=False,
-                                        ioclass_kws=ioclass_kws)
+                                                subpath_templ=sub_path,
+                                                exact_templ=False,
+                                                ioclass_kws=ioclass_kws)
 
     def tstamps_for_daterange(self, start_date, end_date):
         """
-        return timestamps for given date range
+        Return timestamps for a given date range.
 
         Parameters
         ----------
-        start_date: datetime
+        start_date: datetime.datetime
             start of date range
-        end_date: datetime
+        end_date: datetime.datetime
             end of date range
 
         Returns
@@ -265,9 +320,11 @@ class MERRA2_Ds(MultiTemporalImageBase):
             start_date and end_date
         """
 
-        # initialize timestamp array, calculate nr of months between start and end date
+        # initialize timestamp array, calculate nr of months between start and
+        # end date
         timestamps = []
-        diff = monthdelta.monthmod(start_date, end_date)[0] + monthdelta.monthdelta(1)
+        diff = monthdelta.monthmod(start_date, end_date)[
+            0] + monthdelta.monthdelta(1)
 
         for m in range(diff.months):
             # populate array month by month
@@ -276,46 +333,55 @@ class MERRA2_Ds(MultiTemporalImageBase):
 
         return timestamps
 
-class MERRA2_Ds_1h(MultiTemporalImageBase):
+
+class MERRA2_Ds_hourly(MultiTemporalImageBase):
     """
-    1 hourly data
-    read/write a sequence of multi temporal images under a given path
+    Class for reading the hourly merra2 data. Read image stack between
+    start date and end date under a given path.
     """
-    def __init__(self, data_path, parameter='GWETPROF', array_1D=False):
+
+    def __init__(self, data_path, parameter='GWETTOP', array_1D=False):
+        """
+        Initialize MERRA2_Ds_1h object with a given path.
+
+        Parameters
+        ----------
+        data_path : string
+            path to the nc files
+        parameter : string or list, optional
+            one or list of parameters to read, see MERRA2 documentation for more information
+            Default : 'GWETTOP'
+        array_1D: boolean, optional
+            if set then the data is read into 1D arrays. Needed for some legacy code.
         """
 
-        :param data_path:
-        :param parameters:
-        """
-
-        # TODO: whaaaaat is this?
         ioclass_kws = {'parameter': parameter,
                        'array_1D': array_1D}
 
         # define sub paths of root folder
-        sub_path = ['%Y','%m']
+        sub_path = ['%Y', '%m']
 
         # define fn template for 1h data
         fn_template = "MERRA2_*.tavg1_2d_lnd_Nx.{datetime}.nc4"
 
-        super(MERRA2_Ds_1h, self).__init__(path=data_path,
-                                        ioclass=MERRA_Img,
-                                        fname_templ=fn_template,
-                                        # monthly data
-                                        datetime_format="%Y%m%d",
-                                        subpath_templ=sub_path,
-                                        exact_templ=False,
-                                        ioclass_kws=ioclass_kws)
+        super(MERRA2_Ds_hourly, self).__init__(path=data_path,
+                                               ioclass=MERRA_Img,
+                                               fname_templ=fn_template,
+                                               # monthly data
+                                           datetime_format="%Y%m%d",
+                                               subpath_templ=sub_path,
+                                               exact_templ=False,
+                                               ioclass_kws=ioclass_kws)
 
     def tstamps_for_daterange(self, start_date, end_date):
         """
-        return timestamps for given date range
+        Return timestamps for a given date range.
 
         Parameters
         ----------
-        start_date: datetime
+        start_date: datetime.datetime
             start of date range
-        end_date: datetime
+        end_date: datetime.datetime
             end of date range
 
         Returns
@@ -324,7 +390,9 @@ class MERRA2_Ds_1h(MultiTemporalImageBase):
             list of datetime objects of each available image between
             start_date and end_date
         """
-        img_offsets = np.array([timedelta(hours=i, minutes=30) for i in range(24)])
+        # 00:30, 01:30, 02:30,..., 23:30
+        img_offsets = np.array([timedelta(hours=i, minutes=30)
+                                for i in range(24)])
 
         timestamps = []
         diff = end_date - start_date
@@ -337,14 +405,20 @@ class MERRA2_Ds_1h(MultiTemporalImageBase):
 
 class MERRA2_Ts(GriddedNcOrthoMultiTs):
     """
-    Reads merra ts data
+    Read reshuffled hourly or monthly merra2 ts data under a given path.
     """
 
     def __init__(self, ts_path, grid_path=None):
         """
+        Initialize MERRA2_Ts object with path to data repository. Use to read
+        time series data at a given location.
 
-        :param ts_path:
-        :param grid_path:
+        Parameters
+        ----------
+        ts_path : string
+            path to the nc files
+        grid_path : string
+            path to grid.nc file
         """
 
         if grid_path is None:
@@ -355,32 +429,29 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
 
 
 if __name__ == '__main__':
-    # test 1h data read
     import matplotlib.pyplot as plt
-    import datetime
 
-
+    # TODO: remove and move tests to test module
+    # test 1h data
     # plot hourly ts data
     ts_path = '/home/fzaussin/Desktop/merra-1h-reshuffling-test'
 
+    # lon and lat of gp
+    lon, lat = (-104, 49)
+    gpi = MERRACellgrid().find_nearest_gpi(lon=lon, lat=lat)[0]
+    print gpi
+
     # read ts at gp
-    gpi = 100000
     ts = MERRA2_Ts(ts_path).read(gpi)
     print ts, type(ts)
-    ts_daily = ts.resample('D').sum()
-
-    # lon and lat of gp
-    lon, lat = MERRACellgrid().gpi2lonlat(gpi)
-    print lon, lat
+    ts_daily = ts.resample('D').mean()
 
     ts.plot(title='1h')
     ts_daily.plot(title='1d')
     plt.show()
 
-    """
-    # TEST
-    import matplotlib.pyplot as plt
 
+    # test monthly data
     # path to ts data
     usr_path = '/home/fzaussin/'
     ts_path = os.path.join(usr_path, 'shares/exchange/students/fzaussin/BACKUP/D/MERRA/MERRA2_MONTHLY/Timeseries_SM')
@@ -398,5 +469,4 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
     ts.plot(ax=ax)
     plt.show()
-    """
 

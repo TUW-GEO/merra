@@ -1,6 +1,30 @@
+# -*- coding: utf-8 -*-
+# The MIT License (MIT)
+#
+# Copyright (c) 2016, TU Wien
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 Download MERRA.
 """
+
 import os
 import sys
 import glob
@@ -21,8 +45,8 @@ def gldas_folder_get_version_first_last(
         root,
         fmt="MERRA2_100.tavgU_2d_lnd_Nx.{time:%Y%m}.nc4",
         subpaths=['{:%Y}']):
-        #fmt="GLDAS_NOAH025_3H.A{time:%Y%m%d.%H%M}.0{version:2s}.nc4",
-        #subpaths=['{:%Y}', '{:%j}']):
+        # fmt="GLDAS_NOAH025_3H.A{time:%Y%m%d.%H%M}.0{version:2s}.nc4",
+        # subpaths=['{:%Y}', '{:%j}']):
     """
     Get product version and first and last product which exists under the root folder.
     Parameters
@@ -51,15 +75,23 @@ def gldas_folder_get_version_first_last(
     print 'Last folder', last_folder
 
     if first_folder is not None:
-        files = sorted(glob.glob(os.path.join(first_folder, parser.globify(fmt))))
+        files = sorted(
+            glob.glob(
+                os.path.join(
+                    first_folder,
+                    parser.globify(fmt))))
         data = parser.parse(fmt, os.path.split(files[0])[1])
         start = data['time']
-        #TODO: adapt version
+        # TODO: adapt version
         version = 'M2TUNXLND.5.12.4'
         #version = 'GLDAS_Noah_v%s_025' % data['version']
 
     if last_folder is not None:
-        files = sorted(glob.glob(os.path.join(last_folder, parser.globify(fmt))))
+        files = sorted(
+            glob.glob(
+                os.path.join(
+                    last_folder,
+                    parser.globify(fmt))))
         data = parser.parse(fmt, os.path.split(files[-1])[1])
         end = data['time']
 
@@ -120,7 +152,7 @@ def get_first_formatted_dir_in_dir(folder, fmt):
 
 def get_gldas_start_date(product):
     dt_dict = {'M2TUNXLND.5.12.4': datetime(1980, 1, 1)}
-    #dt_dict = {'GLDAS_Noah_v20_025': datetime(1948, 1, 1, 3),
+    # dt_dict = {'GLDAS_Noah_v20_025': datetime(1948, 1, 1, 3),
     #           'GLDAS_Noah_v21_025': datetime(2000, 1, 1, 3)}
     return dt_dict[product]
 
@@ -143,13 +175,13 @@ def parse_args(args):
     parser.add_argument("-e", "--end", type=mkdate,
                         help=("Enddate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."
                               "If not given then the current date is used."))
-    #TODO: adapt help_string
+    # TODO: adapt help_string
     help_string = '\n'.join(['MERRA2 product to download.',
                              'M2TUNXLND.5.12.4 available from {}',
                              'M2TUNXLND.5.12.4 available from {}'])
     help_string = help_string.format(get_gldas_start_date('M2TUNXLND.5.12.4'),
                                      get_gldas_start_date('M2TUNXLND.5.12.4'))
-    #TODO: adapt choices and default
+    # TODO: adapt choices and default
     parser.add_argument("--product", choices=["M2TUNXLND.5.12.4"], default="M2TUNXLND.5.12.4",
                         help=help_string)
     parser.add_argument("--username",
@@ -175,7 +207,7 @@ def parse_args(args):
                     args.start = get_gldas_start_date(args.product)
                 else:
                     # In case of no indication if version, use GLDAS Noah 2.0 start time
-                    #TODO: adapt
+                    # TODO: adapt
                     args.start = get_gldas_start_date('M2TUNXLND.5.12.4')
                     #args.start = get_gldas_start_date('GLDAS_Noah_v20_025')
             else:
@@ -183,11 +215,11 @@ def parse_args(args):
         if args.end is None:
             args.end = datetime.now()
 
-    #TODO: adapt prod_urls
+    # TODO: adapt prod_urls
     prod_urls = {'M2TUNXLND.5.12.4':
-                     {'root': 'https://goldsmr4.gesdisc.eosdis.nasa.gov',
-                      'dirs': ['data', 'MERRA2_DIURNAL', 'M2TUNXLND.5.12.4',
-                               '%Y']}}
+                 {'root': 'https://goldsmr4.gesdisc.eosdis.nasa.gov',
+                  'dirs': ['data', 'MERRA2_DIURNAL', 'M2TUNXLND.5.12.4',
+                           '%Y']}}
     # prod_urls = {'GLDAS_Noah_v20_025':
     #                  {'root': 'https://hydro1.sci.gsfc.nasa.gov',
     #                   'dirs': ['data', 'GLDAS', 'GLDAS_NOAH025_3H.2.0',
@@ -232,6 +264,8 @@ def main(args):
 def run():
     main(sys.argv[1:])
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     run()
-    #python download.py ~/merra-daily -s 1980-01-01 -e 1980-12-31 --username fzaussin --password HeT8zzDzOEea
+    # python download.py ~/merra-daily -s 1980-01-01 -e 1980-12-31 --username
+    # fzaussin --password HeT8zzDzOEea
