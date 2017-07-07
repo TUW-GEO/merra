@@ -430,11 +430,8 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-
-    # TODO: remove and move tests to test module
-    # test 1h data
     # plot hourly ts data
-    ts_path = '/home/fzaussin/Desktop/merra-1h-reshuffling-test'
+    ts_path = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/M2T1NXLND.5.12.4/datasets/ts_hourly_means'
 
     # lon and lat of gp
     lon, lat = (-104, 49)
@@ -448,25 +445,5 @@ if __name__ == '__main__':
 
     ts.plot(title='1h')
     ts_daily.plot(title='1d')
-    plt.show()
-
-
-    # test monthly data
-    # path to ts data
-    usr_path = '/home/fzaussin/'
-    ts_path = os.path.join(usr_path, 'shares/exchange/students/fzaussin/BACKUP/D/MERRA/MERRA2_MONTHLY/Timeseries_SM')
-
-    # read ts at gp
-    gpi = 100000
-    ts = MERRA2_Ts(ts_path).read(gpi)
-    print ts, type(ts)
-
-    # lon and lat of gp
-    lon, lat = MERRACellgrid().gpi2lonlat(gpi)
-    print lon, lat
-
-    # create plot
-    fig, ax = plt.subplots()
-    ts.plot(ax=ax)
     plt.show()
 
