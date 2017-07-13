@@ -50,6 +50,7 @@ from pygeogrids.netcdf import load_grid
 from pynetcf.time_series import GriddedNcOrthoMultiTs
 
 from grid import MERRACellgrid
+from rsroot import root_path
 
 class MERRA_Img(ImageBase):
     """
@@ -408,7 +409,7 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
     Read reshuffled hourly or monthly merra2 ts data under a given path.
     """
 
-    def __init__(self, ts_path, grid_path=None):
+    def __init__(self, ts_path=None, grid_path=None):
         """
         Initialize MERRA2_Ts object with path to data repository. Use to read
         time series data at a given location.
@@ -420,6 +421,16 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
         grid_path : string
             path to grid.nc file
         """
+        if ts_path is None:
+            # TODO: root_path.r does not point to correct dirs for my ubuntu
+            # TODO: temporary hardcoded user name in rspath
+            ts_path = os.path.join(root_path.r,
+                                   'Datapool_processed',
+                                   'Earth2Observe',
+                                   'MERRA2',
+                                   'M2T1NXLND.5.12.4',
+                                   'datasets',
+                                   'ts_hourly_means')
 
         if grid_path is None:
             grid_path = os.path.join(ts_path, "grid.nc")
@@ -427,23 +438,57 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
         grid = pygeogrids.netcdf.load_grid(grid_path)
         super(MERRA2_Ts, self).__init__(ts_path, grid)
 
+def temp_read_ts(lon, lat):
+    """
+    Temporary reader which concatenates the two time series pieces:
+    piece 1: 1980-01-01 00:30:00 : 1998-10-31 23:30:00
+    piece 2: 1998-11-01 00:30:00 : 2017-05-31 23:30:00
+
+    :param lon: longitude
+    :param lat: latitude
+    :return: merra2 ts from 1980-01-01 to 2017-05-31
+    """
+    # first piece
+    ts1_object = MERRA2_Ts()
+    ts1 = ts1_object.read(lon, lat)
+
+    # second piece
+    ts_path2 = os.path.join(root_path.r,
+                           'Datapool_processed',
+                           'Earth2Observe',
+                           'MERRA2',
+                           'M2T1NXLND.5.12.4',
+                           'datasets',
+                           'ts_hourly_means_part2')
+
+    # TODO: local pfad mit ts_path2 ersetzen sobald daten rübergeschoben
+    ts2_object = MERRA2_Ts(ts_path='/home/fzaussin/merra-ts-from-1998-11-01')
+    ts2 = ts2_object.read(lon, lat)
+
+    # cut ts1 above overlap timestamp to drop duplicate rows
+    overlap = '1998-10-31 23:30:00'
+    ts1 = ts1[:overlap]
+    # return concatenated ts
+    ts_both = pd.concat([ts1,ts2])
+    return ts_both
+
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-    # plot hourly ts data
-    ts_path = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/M2T1NXLND.5.12.4/datasets/ts_hourly_means'
+    # examples
 
-    # lon and lat of gp
+    # find gpi for given lon and lat
     lon, lat = (-104, 49)
     gpi = MERRACellgrid().find_nearest_gpi(lon=lon, lat=lat)[0]
     print gpi
 
-    # read ts at gp
-    ts = MERRA2_Ts(ts_path).read(gpi)
-    print ts, type(ts)
+    # read ts of whole length
+    ts = temp_read_ts(lon, lat)
+    ts.plot(title='merra2 1-hourly')
+
+    # resample to daily resolution
     ts_daily = ts.resample('D').mean()
+    ts_daily.plot(title='merra2 daily')
 
-    ts.plot(title='1h')
-    ts_daily.plot(title='1d')
+    # show plots
     plt.show()
-
