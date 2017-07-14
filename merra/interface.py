@@ -438,21 +438,32 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
         grid = pygeogrids.netcdf.load_grid(grid_path)
         super(MERRA2_Ts, self).__init__(ts_path, grid)
 
+
 def temp_read_ts(lon, lat):
     """
-    Temporary reader which concatenates the two time series pieces:
-    piece 1: 1980-01-01 00:30:00 : 1998-10-31 23:30:00
-    piece 2: 1998-11-01 00:30:00 : 2017-05-31 23:30:00
+    TEMPORARY reader which concatenates the two time series pieces.
+    (Due to a hardware defect the reshuffling process was interrupted.)
+        piece 1: 1980-01-01 00:30:00 : 1998-10-31 23:30:00
+        piece 2: 1998-11-01 00:30:00 : 2017-05-31 23:30:00
 
-    :param lon: longitude
-    :param lat: latitude
-    :return: merra2 ts from 1980-01-01 to 2017-05-31
+    Parameters
+    ----------
+    lon: float
+        longitude
+    lat: float
+        latitude
+
+    Returns
+    -------
+    ts_both : pd.DataFrame
+        concatenated merra2 time series from 1980-01-01 to 2017-05-31
     """
-    # first piece
+
+    # read first piece
     ts1_object = MERRA2_Ts()
     ts1 = ts1_object.read(lon, lat)
 
-    # second piece
+    # read second piece
     ts_path2 = os.path.join(root_path.r,
                            'Datapool_processed',
                            'Earth2Observe',
@@ -461,11 +472,11 @@ def temp_read_ts(lon, lat):
                            'datasets',
                            'ts_hourly_means_part2')
 
-    # TODO: local pfad mit ts_path2 ersetzen sobald daten rübergeschoben
-    ts2_object = MERRA2_Ts(ts_path='/home/fzaussin/merra-ts-from-1998-11-01')
+    ts2_object = MERRA2_Ts(ts_path=ts_path2)
     ts2 = ts2_object.read(lon, lat)
 
     # cut ts1 above overlap timestamp to drop duplicate rows
+    # verified timestamp using check_integrity=True
     overlap = '1998-10-31 23:30:00'
     ts1 = ts1[:overlap]
     # return concatenated ts
@@ -475,7 +486,7 @@ def temp_read_ts(lon, lat):
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-    # examples
+    # short example
 
     # find gpi for given lon and lat
     lon, lat = (-104, 49)
