@@ -1,6 +1,5 @@
 pyproj
 pygeogrids
-pygrib
 numpy
 pygeobase
 datedown>=0.3
@@ -12,4 +11,3 @@ repurpose
 pynetcf
 monthdelta
 datetime
-rsroot
