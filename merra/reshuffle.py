@@ -98,6 +98,7 @@ def reshuffle(in_path,
         product = 'MERRA2_monthly'
     else:
         raise NotImplementedError()
+        pass
 
     # create out_path directory if it does not exist yet
     if not os.path.exists(out_path):
