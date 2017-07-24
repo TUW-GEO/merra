@@ -17,11 +17,11 @@ from reshuffle import reshuffle
 # data path definitions
 
 in_path = '/home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2T1NXLND.5.12.4'
-out_path = '/home/fzaussin/merra-ts-from-1998-11-01/'
+out_path = '/home/fzaussin/merra-ts'
 
 # define date range as datetime (!) objects
-start_date = datetime(1998,11,01)
-end_date = datetime(2017,5,31)
+start_date = datetime(1980,01,01)
+end_date = datetime(2017,05,31)
 
 # specific soil moisture params
 param_list = ['GWETPROF', 'GWETROOT', 'GWETTOP']
@@ -35,7 +35,7 @@ if __name__ == '__main__':
               start_date=start_date,
               end_date=end_date,
               parameters=param_list,
-              img_buffer=100)
+              img_buffer=1000)
 
     toc = time.clock()
     print "Elapsed time: ", str(datetime.timedelta(seconds=toc - tic))
