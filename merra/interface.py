@@ -171,7 +171,6 @@ class MERRA_Img(ImageBase):
 
         # Iterate over all parameters in nc file
         for parameter, variable in dataset.variables.items():
-
             # Only process selected parameters
             if parameter in param_names:
                 param_metadata = {}
@@ -185,6 +184,8 @@ class MERRA_Img(ImageBase):
 
                 # initialize parameter data as masked array, set fill value to
                 # 1e+15
+                # TODO: here param_data is of shape (24, 361, 576)
+                # TODO: iterate over hourly values
                 param_data = dataset.variables[parameter][:]
 
                 # GWETTOP is returned as nd-array in place of an masked array
@@ -205,6 +206,7 @@ class MERRA_Img(ImageBase):
 
                 # update data and metadata dicts depending on declared
                 # parameters
+                # gpis = 207936
                 return_img.update(
                     {parameter: param_data[self.grid.activegpis]})
                 return_metadata.update({parameter: param_metadata})
@@ -229,6 +231,7 @@ class MERRA_Img(ImageBase):
             # iterate trough return_img dict and reshape nd-array to 361 x 576
             # matrix
             for key in return_img:
+                print key
                 return_img[key] = np.flipud(
                     return_img[key].reshape((361, 576)))
 
@@ -298,7 +301,7 @@ class MERRA2_Ds_monthly(MultiTemporalImageBase):
                                                 ioclass=MERRA_Img,
                                                 fname_templ=fn_template,
                                                 # monthly data
-                                        datetime_format="%Y%m",
+                                                datetime_format="%Y%m",
                                                 subpath_templ=sub_path,
                                                 exact_templ=False,
                                                 ioclass_kws=ioclass_kws)
@@ -368,11 +371,14 @@ class MERRA2_Ds_hourly(MultiTemporalImageBase):
         super(MERRA2_Ds_hourly, self).__init__(path=data_path,
                                                ioclass=MERRA_Img,
                                                fname_templ=fn_template,
-                                               # monthly data
-                                           datetime_format="%Y%m%d",
+                                               # hourly data
+                                               datetime_format="%Y%m%d",
                                                subpath_templ=sub_path,
                                                exact_templ=False,
                                                ioclass_kws=ioclass_kws)
+
+
+
 
     def tstamps_for_daterange(self, start_date, end_date):
         """
@@ -430,7 +436,7 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
                                    'MERRA2',
                                    'M2T1NXLND.5.12.4',
                                    'datasets',
-                                   'ts_hourly_means')
+                                   'ts_daily_0030')
 
         if grid_path is None:
             grid_path = os.path.join(ts_path, "grid.nc")
@@ -439,67 +445,15 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
         super(MERRA2_Ts, self).__init__(ts_path, grid)
 
 
-def temp_read_ts(lon, lat):
-    """
-    TEMPORARY reader which concatenates the two time series pieces.
-    (Due to a hardware defect the reshuffling process was interrupted.)
-        piece 1: 1980-01-01 00:30:00 : 1998-10-31 23:30:00
-        piece 2: 1998-11-01 00:30:00 : 2017-05-31 23:30:00
-
-    Parameters
-    ----------
-    lon: float
-        longitude
-    lat: float
-        latitude
-
-    Returns
-    -------
-    ts_both : pd.DataFrame
-        concatenated merra2 time series from 1980-01-01 to 2017-05-31
-    """
-
-    # read first piece
-    ts1_object = MERRA2_Ts()
-    ts1 = ts1_object.read(lon, lat)
-
-    # read second piece
-    ts_path2 = os.path.join(root_path.r,
-                           'Datapool_processed',
-                           'Earth2Observe',
-                           'MERRA2',
-                           'M2T1NXLND.5.12.4',
-                           'datasets',
-                           'ts_hourly_means_part2')
-
-    ts2_object = MERRA2_Ts(ts_path=ts_path2)
-    ts2 = ts2_object.read(lon, lat)
-
-    # cut ts1 above overlap timestamp to drop duplicate rows
-    # verified timestamp using check_integrity=True
-    overlap = '1998-10-31 23:30:00'
-    ts1 = ts1[:overlap]
-    # return concatenated ts
-    ts_both = pd.concat([ts1,ts2])
-    return ts_both
-
-
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-    # short example
 
     # find gpi for given lon and lat
-    lon, lat = (-104, 49)
-    gpi = MERRACellgrid().find_nearest_gpi(lon=lon, lat=lat)[0]
-    print gpi
-
-    # read ts of whole length
-    ts = temp_read_ts(lon, lat)
-    ts.plot(title='merra2 1-hourly')
-
-    # resample to daily resolution
+    lon, lat = (-2.5, 43.5)
+    # read data
+    ts = MERRA2_Ts().read(lon, lat)
+    # since the current data only represents data values at the timestamp 00:30,
+    # we resample to daily resolution, keeping the 00:30 values
     ts_daily = ts.resample('D').mean()
-    ts_daily.plot(title='merra2 daily')
-
-    # show plots
+    ts_daily.plot(title='MERRA2 daily data at 00:30 timestamp')
     plt.show()
