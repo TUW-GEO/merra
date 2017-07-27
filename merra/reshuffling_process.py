@@ -17,14 +17,14 @@ from reshuffle import reshuffle
 # data path definitions
 
 in_path = '/home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2T1NXLND.5.12.4'
-out_path = '/home/fzaussin/merra-ts'
+out_path = '/home/fzaussin/merra-sfmc'
 
 # define date range as datetime (!) objects
-start_date = datetime(1980,01,01)
+start_date = datetime(2007,01,01)
 end_date = datetime(2017,05,31)
 
 # specific soil moisture params
-param_list = ['GWETPROF', 'GWETROOT', 'GWETTOP']
+param_list = ['GWETPROF', 'GWETROOT', 'GWETTOP', 'SFMC', 'RZMC', 'LAI', 'TSOIL1']
 
 if __name__ == '__main__':
     import time, datetime
