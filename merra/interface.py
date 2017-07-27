@@ -451,13 +451,9 @@ if __name__ == '__main__':
     # find gpi for given lon and lat
     lon, lat = (-2.5, 43.5)
     # read data
-    ts = MERRA2_Ts(ts_path='/home/fzaussin/merra-sfmc').read(lon, lat)
-    ts_gwet = MERRA2_Ts().read(lon, lat)
-    ts_gwet['SFMC'] = ts
+    ts = MERRA2_Ts().read(lon, lat)
     # since the current data only represents data values at the timestamp 00:30,
     # we resample to daily resolution, keeping the 00:30 values
     ts_daily = ts.resample('D').mean()
     ts_daily.plot(title='MERRA2 daily data at 00:30 timestamp')
-    ts_gwet.resample('D').mean().plot()
-    print ts_gwet.corr()
     plt.show()
