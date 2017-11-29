@@ -90,8 +90,8 @@ class MERRA_Img(ImageBase):
         """
         try:
             dataset = Dataset(self.filename)
-
-            if dataset.data_model == 'NETCDF4':
+            # data model and chunksize changed from 2015/06 to 2015/07 of monthly data
+            if dataset.data_model in ('NETCDF4', 'NETCDF4_CLASSIC'):
                 print "Successfully opened file '{}'.\n".format(dataset.Filename)
                 return dataset
         except IOError as e:
@@ -109,7 +109,6 @@ class MERRA_Img(ImageBase):
             list of available parameters
         """
         # read file
-        # TODO: error handling, implement variable groups
         dataset = self.open_file()
 
         # check for number of vars and create df as placeholder
@@ -449,11 +448,14 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     # find gpi for given lon and lat
-    lon, lat = (-2.5, 43.5)
+    lon, lat = (-100, 38)
     # read data
-    ts = MERRA2_Ts().read(lon, lat)
+    ts = MERRA2_Ts(ts_path='/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2TMNXLND.5.12.4').read(lon, lat)
     # since the current data only represents data values at the timestamp 00:30,
     # we resample to daily resolution, keeping the 00:30 values
-    ts_daily = ts.resample('D').mean()
-    ts_daily.plot(title='MERRA2 daily data at 00:30 timestamp')
+    #ts_daily = ts.resample('D').mean()
+
+    ts.plot(title='MERRA2 daily data at 00:30 timestamp')
+    print ts
     plt.show()
+
