@@ -16,15 +16,18 @@ from reshuffle import reshuffle
 
 # data path definitions
 
-in_path = '/home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2T1NXLND.5.12.4'
-out_path = '/home/fzaussin/merra-sfmc'
+in_path = '/home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/M2TMNXLND.5.12.4'
+out_path = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2TMNXLND.5.12.4'
 
 # define date range as datetime (!) objects
-start_date = datetime(2007,01,01)
-end_date = datetime(2017,05,31)
+start_date = datetime(1980, 1, 1)
+end_date = datetime(2017, 10, 31)
 
 # specific soil moisture params
-param_list = ['GWETPROF', 'GWETROOT', 'GWETTOP', 'SFMC', 'RZMC', 'LAI', 'TSOIL1']
+param_list = ['TSOIL1', 'TSOIL2', 'TSOIL3', 'TSOIL4', 'TSOIL5', 'TSOIL6', 'TSURF',
+              'SFMC', 'RZMC',
+              'GWETPROF', 'GWETROOT', 'GWETTOP',
+              'SNOMAS', 'PRECSNOLAND', 'PRECTOTLAND']
 
 if __name__ == '__main__':
     import time, datetime
@@ -35,7 +38,9 @@ if __name__ == '__main__':
               start_date=start_date,
               end_date=end_date,
               parameters=param_list,
-              img_buffer=1000)
+              img_buffer=50,
+              # specify time resolution
+              temp_res='monthly')
 
     toc = time.clock()
     print "Elapsed time: ", str(datetime.timedelta(seconds=toc - tic))
