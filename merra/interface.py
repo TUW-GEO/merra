@@ -52,9 +52,9 @@ from pynetcf.time_series import GriddedNcOrthoMultiTs
 from grid import MERRACellgrid
 from rsroot import root_path
 
-class MERRA_Img(ImageBase):
+class MERRA_Img_m(ImageBase):
     """
-    Class for reading one MERRA2 nc file in native resolution.
+    Class for reading one MERRA-2 nc file in monthly resolution.
 
     Parameters
     ----------
@@ -64,13 +64,13 @@ class MERRA_Img(ImageBase):
         mode of opening the file, only 'r' is implemented at the moment
     parameter : string or list, optional
         one or list of parameters to read, see MERRA2 documentation for more information
-        Default : 'GWETTOP'
+        Default : 'SFMC'
     array_1D: boolean, optional
         if set then the data is read into 1D arrays. Needed for some legacy code.
     """
 
-    def __init__(self, filename, mode='r', parameter='GWETTOP', array_1D=False):
-        super(MERRA_Img, self).__init__(filename, mode=mode)
+    def __init__(self, filename, mode='r', parameter='SFMC', array_1D=False):
+        super(MERRA_Img_m, self).__init__(filename, mode=mode)
 
         if not isinstance(parameter, list):
             parameter = [parameter]
@@ -99,43 +99,6 @@ class MERRA_Img(ImageBase):
             print(" ".join([self.filename, "can not be opened."]))
             raise e
 
-    def show_params(self, var_list=False):
-        """
-        Lists all parameter names and their units
-
-        Returns
-        -------
-        params: pd.DataFrame
-            list of available parameters
-        """
-        # read file
-        dataset = self.open_file()
-
-        # check for number of vars and create df as placeholder
-        param_count = len(dataset.variables.items())
-        params = pd.DataFrame(
-            index=range(param_count), columns=[
-                'var_name', 'long_name', 'units'])
-
-        # iterate over var list and add info row-wise to df
-        for v in range(param_count):
-            var_name = dataset.variables.items()[v][0]
-            long_name = dataset.variables.get(var_name).long_name
-            units = dataset.variables.get(var_name).units
-            # save to df
-            params.iloc[v] = [var_name, long_name, units]
-
-        if not var_list:
-            # return extensive description as df
-            print("\nAvailable Parameters:\n{1}\n{0}\n{1}").format(
-                params, '_' * 80)
-            return params
-        else:
-            # return list of params
-            # skip lon,lat,time
-            lnd_vars = params['var_name'][3:]
-            return list(lnd_vars)
-
     def read(self, timestamp=None):
         """
         Reads single image for given timestamp.
@@ -156,9 +119,6 @@ class MERRA_Img(ImageBase):
         # return selected parameters and metadata for an image
         return_img = {}
         return_metadata = {}
-
-        # horizontal soil layers
-        layers = {'dzgt': 1}
 
         # open dataset
         dataset = self.open_file()
@@ -181,13 +141,9 @@ class MERRA_Img(ImageBase):
                         param_metadata.update(
                             {attr_name: getattr(variable, attr_name)})
 
-                # initialize parameter data as masked array, set fill value to
-                # 1e+15
-                # TODO: here param_data is of shape (24, 361, 576)
-                # TODO: iterate over hourly values
                 param_data = dataset.variables[parameter][:]
 
-                # GWETTOP is returned as nd-array in place of an masked array
+                # SFMC is returned as nd-array in place of a masked array
                 # type handling
 
                 if not isinstance(param_data, np.ma.masked_array):
@@ -196,10 +152,171 @@ class MERRA_Img(ImageBase):
                     # flatten nd-array
                     param_data = param_data.flatten()
                 else:
-                    # TODO: check why there are only fill vals in data
-                    # override fill value of masked array
-                    # np.ma.set_fill_value(param_data, 1e+15)
 
+                    # masked array to 1d nd-array
+                    param_data = np.ma.getdata(param_data).flatten()
+
+                # update data and metadata dicts depending on declared
+                # parameters
+                # gpis = 207936
+                return_img.update(
+                    {parameter: param_data[self.grid.activegpis]})
+                return_metadata.update({parameter: param_metadata})
+
+                # Check for corrupt files
+                try:
+                    return_img[parameter]
+                except KeyError:
+                    path, file_name = os.path.split(self.filename)
+                    print '%s in %s is corrupt - filling image with NaN values' % (parameter, file_name)
+                    return_img[parameter] = np.empty(
+                        self.grid.n_gpi).fill(np.nan)
+                    return_metadata['corrupt_parameters'].append()
+
+        if self.array_1D:
+            return Image(self.grid.activearrlon,
+                         self.grid.activearrlat,
+                         return_img,
+                         return_metadata,
+                         timestamp)
+        else:
+            # iterate trough return_img dict and reshape nd-array to 361 x 576
+            # matrix
+            for key in return_img:
+                print key
+                return_img[key] = np.flipud(
+                    return_img[key].reshape((361, 576)))
+
+            # return Image object for called parameters
+            return Image(np.flipud(self.grid.activearrlon.reshape((361, 576))),
+                         np.flipud(self.grid.activearrlat.reshape((361, 576))),
+                         return_img,
+                         return_metadata,
+                         timestamp)
+
+    def write(self, image, **kwargs):
+        """
+        Write data to an image file.
+
+        Parameters
+        ----------
+        image : object
+            pygeobase.object_base.Image object
+        """
+        raise NotImplementedError()
+        pass
+
+    def flush(self):
+        """
+        Flush data.
+        """
+        pass
+
+    def close(self):
+        """
+        Close file.
+        """
+        pass
+
+
+class MERRA_Img_h(ImageBase):
+    """
+    Class for reading one MERRA-2 nc file in native resolution.
+
+    Parameters
+    ----------
+    filename: string
+        filename of the MERRA2 nc file
+    mode: string, optional
+        mode of opening the file, only 'r' is implemented at the moment
+    parameter : string or list, optional
+        one or list of parameters to read, see MERRA2 documentation for more information
+        Default : 'SFMC'
+    array_1D: boolean, optional
+        if set then the data is read into 1D arrays. Needed for some legacy code.
+    """
+
+    def __init__(self, filename, mode='r', parameter='SFMC', array_1D=False):
+        super(MERRA_Img_h, self).__init__(filename, mode=mode)
+
+        if not isinstance(parameter, list):
+            parameter = [parameter]
+        self.parameters = parameter
+        self.fill_values = np.repeat(1e15, 361 * 576)
+        self.grid = MERRACellgrid()
+        self.array_1D = array_1D
+        self.filename = filename
+
+    def open_file(self):
+        """
+        Try to open dataset.
+
+        Returns
+        -------
+        dataset : netCDF4.Dataset object
+        """
+        try:
+            dataset = Dataset(self.filename)
+            if dataset.data_model in ('NETCDF4', 'NETCDF4_CLASSIC'):
+                print "Successfully opened file '{}'.\n".format(dataset.Filename)
+                return dataset
+        except IOError as e:
+            print(e)
+            print(" ".join([self.filename, "can not be opened."]))
+            raise e
+
+    def read(self, timestamp):
+        """
+        Reads single hourly image for given timestamp.
+
+        Parameters
+        ----------
+        timestamp : datetime.datetime
+            exact timestamp of the image
+
+        Returns
+        -------
+        Image : object
+            pygeobase.object_base.Image object
+        """
+        print "{1}\nReading file: {0}".format(self.filename,
+                                              '_' * 80)
+
+        # return selected parameters and metadata for an image
+        return_img = {}
+        return_metadata = {}
+
+        # open dataset
+        dataset = self.open_file()
+
+        # build parameter list
+        param_names = []
+        for param in self.parameters:
+            param_names.append(param)
+
+        # Iterate over all parameters in nc file
+        for parameter, variable in dataset.variables.items():
+            # Only process selected parameters
+            if parameter in param_names:
+                param_metadata = {}
+
+                # Iterate over all attributes of the selected parameters
+                for attr_name in variable.ncattrs():
+                    # Only extract metadata of the attributes in the list
+                    if attr_name in ['long_name', 'units']:
+                        param_metadata.update(
+                            {attr_name: getattr(variable, attr_name)})
+
+                param_stack = dataset.variables[parameter][:]
+                # only retrieve the image at the given timestamp
+                param_data = param_stack[timestamp.hour]
+
+                if not isinstance(param_data, np.ma.masked_array):
+                    print("Parameter {} is of type {}. Should be {}.").format(
+                        parameter, type(param_data), np.ma.masked_array)
+                    # flatten nd-array
+                    param_data = param_data.flatten()
+                else:
                     # masked array to 1d nd-array
                     param_data = np.ma.getdata(param_data).flatten()
 
@@ -272,7 +389,7 @@ class MERRA2_Ds_monthly(MultiTemporalImageBase):
     start date and end date under a given path.
     """
 
-    def __init__(self, data_path, parameter='GWETTOP', array_1D=False):
+    def __init__(self, data_path, parameter='SFMC', array_1D=False):
         """
         Initialize MERRA2_Ds object with a given path.
 
@@ -282,7 +399,7 @@ class MERRA2_Ds_monthly(MultiTemporalImageBase):
             path to the nc files
         parameter : string or list, optional
             one or list of parameters to read, see MERRA2 documentation for more information
-            Default : 'GWETTOP'
+            Default : 'SFMC'
         array_1D: boolean, optional
             if set then the data is read into 1D arrays. Needed for some legacy code.
         """
@@ -297,7 +414,7 @@ class MERRA2_Ds_monthly(MultiTemporalImageBase):
         fn_template = "MERRA2_*.tavgM_2d_lnd_Nx.{datetime}.nc4"
 
         super(MERRA2_Ds_monthly, self).__init__(path=data_path,
-                                                ioclass=MERRA_Img,
+                                                ioclass=MERRA_Img_m,
                                                 fname_templ=fn_template,
                                                 # monthly data
                                                 datetime_format="%Y%m",
@@ -343,7 +460,7 @@ class MERRA2_Ds_hourly(MultiTemporalImageBase):
     start date and end date under a given path.
     """
 
-    def __init__(self, data_path, parameter='GWETTOP', array_1D=False):
+    def __init__(self, data_path, parameter='SFMC', array_1D=False):
         """
         Initialize MERRA2_Ds_1h object with a given path.
 
@@ -353,7 +470,7 @@ class MERRA2_Ds_hourly(MultiTemporalImageBase):
             path to the nc files
         parameter : string or list, optional
             one or list of parameters to read, see MERRA2 documentation for more information
-            Default : 'GWETTOP'
+            Default : 'SFMC'
         array_1D: boolean, optional
             if set then the data is read into 1D arrays. Needed for some legacy code.
         """
@@ -368,16 +485,13 @@ class MERRA2_Ds_hourly(MultiTemporalImageBase):
         fn_template = "MERRA2_*.tavg1_2d_lnd_Nx.{datetime}.nc4"
 
         super(MERRA2_Ds_hourly, self).__init__(path=data_path,
-                                               ioclass=MERRA_Img,
+                                               ioclass=MERRA_Img_h,
                                                fname_templ=fn_template,
                                                # hourly data
                                                datetime_format="%Y%m%d",
                                                subpath_templ=sub_path,
                                                exact_templ=False,
                                                ioclass_kws=ioclass_kws)
-
-
-
 
     def tstamps_for_daterange(self, start_date, end_date):
         """
@@ -397,6 +511,7 @@ class MERRA2_Ds_hourly(MultiTemporalImageBase):
             start_date and end_date
         """
         # 00:30, 01:30, 02:30,..., 23:30
+        # the values represent the centers of the hourly bins
         img_offsets = np.array([timedelta(hours=i, minutes=30)
                                 for i in range(24)])
 
@@ -426,16 +541,6 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
         grid_path : string
             path to grid.nc file
         """
-        if ts_path is None:
-            # TODO: root_path.r does not point to correct dirs for my ubuntu
-            # TODO: temporary hardcoded user name in rspath
-            ts_path = os.path.join(root_path.r,
-                                   'Datapool_processed',
-                                   'Earth2Observe',
-                                   'MERRA2',
-                                   'M2T1NXLND.5.12.4',
-                                   'datasets',
-                                   'ts_daily_0030')
 
         if grid_path is None:
             grid_path = os.path.join(ts_path, "grid.nc")
@@ -446,16 +551,31 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
+    from datetime import datetime
+    """
+    # read an hourly image file
+    path = '/home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4/1980/01/MERRA2_100.tavg1_2d_lnd_Nx.19800101.nc4'
+    img = MERRA_Img_m(path)
+    f = img.read()
+
+    path = '/home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4/1980/01/MERRA2_100.tavg1_2d_lnd_Nx.19800101.nc4'
+    date = datetime(1980, 1, 1, 23, 30)
+
+    img = MERRA_Img_h(path)
+    f = img.read(timestamp=date)
+    """
 
     # find gpi for given lon and lat
-    lon, lat = (-100, 38)
+    lon, lat = (37.5, 2.5)
     # read data
-    ts = MERRA2_Ts(ts_path='/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2TMNXLND.5.12.4').read(lon, lat)
+    ts = MERRA2_Ts(ts_path='/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4').read(lon, lat)
     # since the current data only represents data values at the timestamp 00:30,
     # we resample to daily resolution, keeping the 00:30 values
     #ts_daily = ts.resample('D').mean()
-
-    ts.plot(title='MERRA2 daily data at 00:30 timestamp')
+    ts_3h = ts.resample('3h').mean()
+    ts[['SFMC', 'PRECTOTLAND']].plot(title='MERRA2 data hourly data')
+    #ts['SFMC'].plot(title='resampled to 3h bins')
     print ts
+    print ts_3h
     plt.show()
 
