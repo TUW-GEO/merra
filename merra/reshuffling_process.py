@@ -16,8 +16,8 @@ from reshuffle import reshuffle
 
 # data path definitions
 
-in_path = '/home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/M2TMNXLND.5.12.4'
-out_path = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2TMNXLND.5.12.4'
+in_path = '/home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4'
+out_path = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4'
 
 # define date range as datetime (!) objects
 start_date = datetime(1980, 1, 1)
@@ -38,9 +38,9 @@ if __name__ == '__main__':
               start_date=start_date,
               end_date=end_date,
               parameters=param_list,
-              img_buffer=50,
+              img_buffer=960,
               # specify time resolution
-              temp_res='monthly')
+              temp_res='hourly')
 
     toc = time.clock()
     print "Elapsed time: ", str(datetime.timedelta(seconds=toc - tic))
