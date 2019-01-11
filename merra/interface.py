@@ -572,10 +572,9 @@ if __name__ == '__main__':
     # since the current data only represents data values at the timestamp 00:30,
     # we resample to daily resolution, keeping the 00:30 values
     #ts_daily = ts.resample('D').mean()
-    ts_3h = ts.resample('3h').mean()
+    ts = ts.resample('D').mean()
     ts[['SFMC', 'PRECTOTLAND']].plot(title='MERRA2 data hourly data')
     #ts['SFMC'].plot(title='resampled to 3h bins')
     print ts
-    print ts_3h
     plt.show()
 

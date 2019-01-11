@@ -38,7 +38,7 @@ if __name__ == '__main__':
               start_date=start_date,
               end_date=end_date,
               parameters=param_list,
-              img_buffer=960,
+              img_buffer=240,
               # specify time resolution
               temp_res='hourly')
 
