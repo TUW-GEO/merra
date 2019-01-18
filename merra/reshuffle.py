@@ -43,7 +43,7 @@ import argparse
 from datetime import datetime
 
 from repurpose.img2ts import Img2Ts
-from interface import MERRA2_Ds_monthly, MERRA2_Ds_hourly
+from merra.interface import MERRA2_Ds_monthly, MERRA2_Ds
 from pygeogrids import BasicGrid
 
 
@@ -60,7 +60,7 @@ def reshuffle(in_path,
               start_date,
               end_date,
               parameters,
-              temp_res='hourly',
+              temporal_sampling=24,
               img_buffer=50):
     """
     Reshuffle method applied to MERRA2 data.
@@ -77,28 +77,24 @@ def reshuffle(in_path,
         End date.
     parameters: list
         parameters to read and convert
-    temp_res : string
-        if 'hourly', MERRA2_Ds_hourly will be used
-        if 'monthly', MERRA2_Ds_monthly will be used
-        notice: diurnal data not supported yet
+    temporal_sampling: int in range [1, 24]
+            Get an image every n hours where n=temporal_sampling. For example:
+            if 1: return hourly sampled data -> hourly sampling
+            if 6: return an image every 6 hours -> 6 hourly sampling
+            if 24: return the 00:30 image of each day -> daily sampling
     img_buffer: int, optional
         How many images to read at once before writing the time series.
     """
 
     # define input dataset
-    if temp_res == 'hourly':
-        input_dataset = MERRA2_Ds_hourly(in_path,
-                                          parameters,
-                                          array_1D=True)
-        product = 'MERRA2_hourly'
-    elif temp_res == 'monthly':
-        input_dataset = MERRA2_Ds_monthly(in_path,
-                                         parameters,
-                                         array_1D=True)
-        product = 'MERRA2_monthly'
-    else:
-        raise NotImplementedError()
-        pass
+    # the img_bulk class in img2ts iterates through every nth
+    # timestamp as specified by temporal_sampling
+    input_dataset = MERRA2_Ds(data_path=in_path,
+                              parameter=parameters,
+                              temporal_sampling=temporal_sampling,
+                              array_1D=True)
+    product = 'MERRA2_hourly'
+
 
     # create out_path directory if it does not exist yet
     if not os.path.exists(out_path):
