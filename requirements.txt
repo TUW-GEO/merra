@@ -5,7 +5,7 @@ pygeobase
 datedown>=0.3
 trollsift
 pytesmo
-netcdf4==1.2.2
+netcdf4
 pyresample
 repurpose
 pynetcf
