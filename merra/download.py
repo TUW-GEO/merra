@@ -70,9 +70,9 @@ def gldas_folder_get_version_first_last(
     end = None
     version = None
     first_folder = get_first_gldas_folder(root, subpaths)
-    print 'First folder', first_folder
+    print('First folder', first_folder)
     last_folder = get_last_gldas_folder(root, subpaths)
-    print 'Last folder', last_folder
+    print('Last folder', last_folder)
 
     if first_folder is not None:
         files = sorted(
@@ -230,9 +230,9 @@ def parse_args(args):
     #                            '%Y', '%j']}}
 
     args.urlroot = prod_urls[args.product]['root']
-    print 'urlroot', args.urlroot
+    print('urlroot', args.urlroot)
     args.urlsubdirs = prod_urls[args.product]['dirs']
-    print 'urlsubdirs', args.urlsubdirs
+    print('urlsubdirs', args.urlsubdirs)
     args.localsubdirs = ['%Y']
     #args.localsubdirs = ['%Y', '%j']
 
