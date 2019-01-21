@@ -16,7 +16,7 @@ from merra.reshuffle import reshuffle
 # data path definitions
 
 in_path = '/home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4'
-out_path = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4_1h_temporal_sampling_test'
+out_path = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4_6h_temporal_sampling_test'
 
 # define date range as datetime (!) objects
 start_date = datetime(1980, 1, 1)
@@ -28,7 +28,7 @@ param_list = ['TSOIL1', 'TSOIL2', 'TSOIL3', 'TSOIL4', 'TSOIL5', 'TSOIL6', 'TSURF
               'GWETPROF', 'GWETROOT', 'GWETTOP',
               'SNOMAS', 'PRECSNOLAND', 'PRECTOTLAND']
 
-param_list = ['SFMC']
+#param_list = ['SFMC']
 
 if __name__ == '__main__':
     import time, datetime
@@ -41,7 +41,7 @@ if __name__ == '__main__':
               parameters=param_list,
               img_buffer=240,
               # specify time resolution
-              temporal_sampling=1)
+              temporal_sampling=6)
 
     toc = time.clock()
     print("Elapsed time: ", str(datetime.timedelta(seconds=toc - tic)))
