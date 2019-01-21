@@ -22,7 +22,7 @@
 # SOFTWARE.
 
 """
-Download MERRA.
+Download MERRA2 reanalysis data.
 """
 
 import os
@@ -41,12 +41,11 @@ from datedown.interface import download_by_dt
 from datedown.down import download
 
 
-def gldas_folder_get_version_first_last(
+def folder_get_version_first_last(
         root,
-        fmt="MERRA2_100.tavgU_2d_lnd_Nx.{time:%Y%m}.nc4",
-        subpaths=['{:%Y}']):
-        # fmt="GLDAS_NOAH025_3H.A{time:%Y%m%d.%H%M}.0{version:2s}.nc4",
-        # subpaths=['{:%Y}', '{:%j}']):
+        fmt="MERRA2_100.tavg1_2d_lnd_Nx.{time:%Y%m%d}.nc4",
+        subpaths=['{time:%Y}', '{time:%m}']):
+
     """
     Get product version and first and last product which exists under the root folder.
     Parameters
@@ -69,9 +68,9 @@ def gldas_folder_get_version_first_last(
     start = None
     end = None
     version = None
-    first_folder = get_first_gldas_folder(root, subpaths)
+    first_folder = get_first_folder(root, subpaths)
     print('First folder', first_folder)
-    last_folder = get_last_gldas_folder(root, subpaths)
+    last_folder = get_last_folder(root, subpaths)
     print('Last folder', last_folder)
 
     if first_folder is not None:
@@ -82,9 +81,7 @@ def gldas_folder_get_version_first_last(
                     parser.globify(fmt))))
         data = parser.parse(fmt, os.path.split(files[0])[1])
         start = data['time']
-        # TODO: adapt version
-        version = 'M2TUNXLND.5.12.4'
-        #version = 'GLDAS_Noah_v%s_025' % data['version']
+        version = 'M2T1NXLND.5.12.4'
 
     if last_folder is not None:
         files = sorted(
@@ -98,7 +95,7 @@ def gldas_folder_get_version_first_last(
     return version, start, end
 
 
-def get_last_gldas_folder(root, subpaths):
+def get_last_folder(root, subpaths):
     directory = root
     for level, subpath in enumerate(subpaths):
         last_dir = get_last_formatted_dir_in_dir(directory, subpath)
@@ -109,7 +106,7 @@ def get_last_gldas_folder(root, subpaths):
     return directory
 
 
-def get_first_gldas_folder(root, subpaths):
+def get_first_folder(root, subpaths):
     directory = root
     for level, subpath in enumerate(subpaths):
         last_dir = get_first_formatted_dir_in_dir(directory, subpath)
@@ -150,10 +147,13 @@ def get_first_formatted_dir_in_dir(folder, fmt):
     return first_elem
 
 
-def get_gldas_start_date(product):
-    dt_dict = {'M2TUNXLND.5.12.4': datetime(1980, 1, 1)}
-    # dt_dict = {'GLDAS_Noah_v20_025': datetime(1948, 1, 1, 3),
-    #           'GLDAS_Noah_v21_025': datetime(2000, 1, 1, 3)}
+def get_start_date(product):
+    """
+    Define start date of product version.
+    :param product:
+    :return:
+    """
+    dt_dict = {'M2T1NXLND.5.12.4': datetime(1980, 1, 1)}
     return dt_dict[product]
 
 
@@ -164,7 +164,7 @@ def parse_args(args):
     :return: command line parameters as :obj:`argparse.Namespace`
     """
     parser = argparse.ArgumentParser(
-        description="Download MERRA2 data.",
+        description="Download MERRA2 hourly data.",
         formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("localroot",
                         help='Root of local filesystem where the data is stored.')
@@ -177,12 +177,11 @@ def parse_args(args):
                               "If not given then the current date is used."))
     # TODO: adapt help_string
     help_string = '\n'.join(['MERRA2 product to download.',
-                             'M2TUNXLND.5.12.4 available from {}',
-                             'M2TUNXLND.5.12.4 available from {}'])
-    help_string = help_string.format(get_gldas_start_date('M2TUNXLND.5.12.4'),
-                                     get_gldas_start_date('M2TUNXLND.5.12.4'))
+                             'M2T1NXLND.5.12.4 available from {}'])
+    help_string = help_string.format(get_start_date('M2T1NXLND.5.12.4'))
+
     # TODO: adapt choices and default
-    parser.add_argument("--product", choices=["M2TUNXLND.5.12.4"], default="M2TUNXLND.5.12.4",
+    parser.add_argument("--product", choices=["M2T1NXLND.5.12.4"], default="M2T1NXLND.5.12.4",
                         help=help_string)
     parser.add_argument("--username",
                         help='Username to use for download.')
@@ -194,7 +193,7 @@ def parse_args(args):
     # set defaults that can not be handled by argparse
 
     # Compare versions to prevent mixing data sets
-    version, first, last = gldas_folder_get_version_first_last(args.localroot)
+    version, first, last = folder_get_version_first_last(args.localroot)
     if args.product and version and (args.product != version):
         raise Exception(
             'Error: Found products of different version ({}) in {}. Abort download!'.format(version, args.localroot))
@@ -204,37 +203,26 @@ def parse_args(args):
         if args.start is None:
             if last is None:
                 if args.product:
-                    args.start = get_gldas_start_date(args.product)
+                    args.start = get_start_date(args.product)
                 else:
-                    # In case of no indication if version, use GLDAS Noah 2.0 start time
                     # TODO: adapt
-                    args.start = get_gldas_start_date('M2TUNXLND.5.12.4')
-                    #args.start = get_gldas_start_date('GLDAS_Noah_v20_025')
+                    args.start = get_start_date('M2T1NXLND.5.12.4')
             else:
                 args.start = last
         if args.end is None:
             args.end = datetime.now()
 
     # TODO: adapt prod_urls
-    prod_urls = {'M2TUNXLND.5.12.4':
+    prod_urls = {'M2T1NXLND.5.12.4':
                  {'root': 'https://goldsmr4.gesdisc.eosdis.nasa.gov',
-                  'dirs': ['data', 'MERRA2_DIURNAL', 'M2TUNXLND.5.12.4',
-                           '%Y']}}
-    # prod_urls = {'GLDAS_Noah_v20_025':
-    #                  {'root': 'https://hydro1.sci.gsfc.nasa.gov',
-    #                   'dirs': ['data', 'GLDAS', 'GLDAS_NOAH025_3H.2.0',
-    #                            '%Y', '%j']},
-    #              'GLDAS_Noah_v21_025':
-    #                  {'root': 'https://hydro1.sci.gsfc.nasa.gov',
-    #                   'dirs': ['data', 'GLDAS', 'GLDAS_NOAH025_3H.2.1',
-    #                            '%Y', '%j']}}
+                  'dirs': ['data', 'MERRA2', 'M2T1NXLND.5.12.4',
+                           '%Y', '%m']}}
 
     args.urlroot = prod_urls[args.product]['root']
     print('urlroot', args.urlroot)
     args.urlsubdirs = prod_urls[args.product]['dirs']
     print('urlsubdirs', args.urlsubdirs)
-    args.localsubdirs = ['%Y']
-    #args.localsubdirs = ['%Y', '%j']
+    args.localsubdirs = ['%Y', '%m']
 
     print("Downloading data from {} to {} into folder {}.".format(args.start.isoformat(),
                                                                   args.end.isoformat(),
@@ -264,8 +252,6 @@ def main(args):
 def run():
     main(sys.argv[1:])
 
-
 if __name__ == '__main__':
     run()
-    # python download.py ~/merra-daily -s 1980-01-01 -e 1980-12-31 --username
-    # fzaussin --password HeT8zzDzOEea
+    # python3 download.py /home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4 -s 2017-11-01 -e 2018-11-30 --username fzaussin --password HeT8zzDzOEea
