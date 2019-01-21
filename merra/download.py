@@ -234,16 +234,18 @@ def main(args):
     args = parse_args(args)
 
     dts = list(daily(args.start, args.end))
+    print(dts)
+    fname = '' #"MERRA2_100.tavg1_2d_lnd_Nx.{time:%Y%m%d}.nc4"
     url_create_fn = partial(create_dt_url, root=args.urlroot,
-                            fname='', subdirs=args.urlsubdirs)
+                            fname=fname, subdirs=args.urlsubdirs)
     fname_create_fn = partial(create_dt_fpath, root=args.localroot,
-                              fname='', subdirs=args.localsubdirs)
+                              fname=fname, subdirs=args.localsubdirs)
     down_func = partial(download,
                         num_proc=args.n_proc,
                         username=args.username,
                         password="'" + args.password + "'",
                         recursive=True,
-                        filetypes=['nc4', 'nc4.xml'])
+                        filetypes=['nc4'])
     download_by_dt(dts, url_create_fn,
                    fname_create_fn, down_func,
                    recursive=True)
@@ -255,3 +257,4 @@ def run():
 if __name__ == '__main__':
     run()
     # python3 download.py /home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4 -s 2017-11-01 -e 2018-11-30 --username fzaussin --password HeT8zzDzOEea
+    # python3 download.py /home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/download_test -s 2017-11-30 -e 2017-12-01 --username fzaussin --password HeT8zzDzOEea
