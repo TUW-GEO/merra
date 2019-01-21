@@ -572,18 +572,18 @@ if __name__ == '__main__':
     # find gpi for given lon and lat
     lon, lat = (16.375, 48.125)
     # read data
-    ts_1h = MERRA2_Ts(ts_path=path_1h).read(lon, lat)
-    ts_1h = ts_1h.rename(columns={'SFMC': 'SFMC_1h'})
-    print(ts_1h.head())
+    #ts_1h = MERRA2_Ts(ts_path=path_1h).read(lon, lat)
+    #ts_1h = ts_1h.rename(columns={'SFMC': 'SFMC_1h'})
+    #print(ts_1h.head())
     ts_6h = MERRA2_Ts(ts_path=path_6h).read(lon, lat)
     ts_6h = ts_6h.rename(columns={'SFMC': 'SFMC_6h'})
-    ts_24h = MERRA2_Ts(ts_path=path_24h).read(lon, lat)
-    ts_24h = ts_24h.rename(columns={'SFMC': 'SFMC_24h'})
+    #ts_24h = MERRA2_Ts(ts_path=path_24h).read(lon, lat)
+    #ts_24h = ts_24h.rename(columns={'SFMC': 'SFMC_24h'})
 
     f, ax = plt.subplots(figsize=(20,10))
-    ts_1h.plot(ax=ax)
-    ts_6h.plot(ax=ax)
-    ts_24h.plot(ax=ax)
+    #ts_1h.plot(ax=ax)
+    ts_6h.plot(ax=ax, style='*')
+    #ts_24h.plot(ax=ax)
     plt.show()
 
     """
