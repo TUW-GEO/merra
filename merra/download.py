@@ -257,4 +257,4 @@ def run():
 if __name__ == '__main__':
     run()
     # python3 download.py /home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4 -s 2017-11-01 -e 2018-11-30 --username fzaussin --password HeT8zzDzOEea
-    # python3 download.py /home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/download_test -s 2017-11-30 -e 2017-12-01 --username fzaussin --password HeT8zzDzOEea
+    # python3 download.py /home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/download_test_2018 -s 2018-10-01 -e 2018-11-30 --username fzaussin --password HeT8zzDzOEea --n_proc 8
