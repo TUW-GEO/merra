@@ -315,8 +315,9 @@ class MERRA_Img(ImageBase):
                 param_data = param_stack[timestamp.hour]
 
                 if not isinstance(param_data, np.ma.masked_array):
-                    print("Parameter {} is of type {}. Should be {}.").format(
-                        parameter, type(param_data), np.ma.masked_array)
+                    # TODO: "NoneType object has no ... .format() error"
+                    #print("Parameter {} is of type {}. Should be {}.").format(
+                    #    parameter, type(param_data), np.ma.masked_array)
                     # flatten nd-array
                     param_data = param_data.flatten()
                 else:
@@ -565,25 +566,14 @@ if __name__ == '__main__':
     from datetime import datetime
 
     # temporal sampling test
-    path_1h = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4_1h_temporal_sampling_test'
     path_6h = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4_6h_temporal_sampling_test'
-    path_24h = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4_24h_temporal_sampling_test'
 
     # find gpi for given lon and lat
     lon, lat = (16.375, 48.125)
-    # read data
-    #ts_1h = MERRA2_Ts(ts_path=path_1h).read(lon, lat)
-    #ts_1h = ts_1h.rename(columns={'SFMC': 'SFMC_1h'})
-    #print(ts_1h.head())
-    ts_6h = MERRA2_Ts(ts_path=path_6h).read(lon, lat)
-    ts_6h = ts_6h.rename(columns={'SFMC': 'SFMC_6h'})
-    #ts_24h = MERRA2_Ts(ts_path=path_24h).read(lon, lat)
-    #ts_24h = ts_24h.rename(columns={'SFMC': 'SFMC_24h'})
 
-    f, ax = plt.subplots(figsize=(20,10))
-    #ts_1h.plot(ax=ax)
-    ts_6h.plot(ax=ax, style='*')
-    #ts_24h.plot(ax=ax)
+    # read data
+    ts_6h = MERRA2_Ts(ts_path=path_6h).read(lon, lat)
+    ts_6h[['SFMC', 'GWETTOP']].plot(figsize=(20,10), subplots=True)
     plt.show()
 
     """
