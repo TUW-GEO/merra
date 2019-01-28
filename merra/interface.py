@@ -36,12 +36,12 @@ Created on 02-02-2017
 """
 
 import os
+import numpy as np
+
 import monthdelta
 from datetime import timedelta
-
-import numpy as np
-import pandas as pd
 from netCDF4 import Dataset
+from merra.grid import MERRACellgrid
 
 import pygeogrids
 from pygeobase.io_base import ImageBase, MultiTemporalImageBase
@@ -49,8 +49,6 @@ from pygeobase.object_base import Image
 from pygeogrids.netcdf import load_grid
 from pynetcf.time_series import GriddedNcOrthoMultiTs
 
-from merra.grid import MERRACellgrid
-from rsroot import root_path
 
 class MERRA_Img_m(ImageBase):
     """
@@ -68,7 +66,6 @@ class MERRA_Img_m(ImageBase):
     array_1D: boolean, optional
         if set then the data is read into 1D arrays. Needed for some legacy code.
     """
-
     def __init__(self, filename, mode='r', parameter='SFMC', array_1D=False):
         super(MERRA_Img_m, self).__init__(filename, mode=mode)
 
@@ -113,8 +110,7 @@ class MERRA_Img_m(ImageBase):
         Image : object
             pygeobase.object_base.Image object
         """
-        print("{1}\nReading file: {0}".format(self.filename,
-                                              '_' * 80))
+        print("Reading file: {}".format(self.filename))
 
         # return selected parameters and metadata for an image
         return_img = {}
@@ -280,8 +276,7 @@ class MERRA_Img(ImageBase):
         Image : object
             pygeobase.object_base.Image object
         """
-        print("{1}\nReading file: {0}".format(self.filename,
-                                              '_' * 80))
+        print("Reading file: {}".format(self.filename))
 
         # return selected parameters and metadata for an image
         return_img = {}
@@ -308,17 +303,13 @@ class MERRA_Img(ImageBase):
                         param_metadata.update(
                             {attr_name: getattr(variable, attr_name)})
 
+                # retrieve data as 3D-array
                 param_stack = dataset.variables[parameter][:]
 
                 # only retrieve the image at the given timestamp
-                # TODO: what about reading the whole stack of one day?
                 param_data = param_stack[timestamp.hour]
 
                 if not isinstance(param_data, np.ma.masked_array):
-                    # TODO: "NoneType object has no ... .format() error"
-                    #print("Parameter {} is of type {}. Should be {}.").format(
-                    #    parameter, type(param_data), np.ma.masked_array)
-                    # flatten nd-array
                     param_data = param_data.flatten()
                 else:
                     # masked array to 1d nd-array
@@ -460,9 +451,6 @@ class MERRA2_Ds(MultiTemporalImageBase):
     Class for reading the hourly merra2 data. Read image stack between
     start date and end date under a given path.
     """
-    # TODO: implement resampling parameter here to specify the temporal sampling.
-    # TODO: Just skip images in a regular way. i.e., for daily res take the 00:30 value, for 6h res take 00:30, 06:30, 12:30, 18:30
-
     def __init__(self, data_path, parameter='SFMC',
                  temporal_sampling=6, array_1D=False):
         """
@@ -483,7 +471,7 @@ class MERRA2_Ds(MultiTemporalImageBase):
         array_1D: boolean, optional
             if set then the data is read into 1D arrays. Needed for some legacy code.
         """
-        # sampling parameter
+        # temporal sampling parameter
         self.temporal_sampling = temporal_sampling
 
         ioclass_kws = {'parameter': parameter,
@@ -521,9 +509,7 @@ class MERRA2_Ds(MultiTemporalImageBase):
             list of datetime objects of each available image between
             start_date and end_date
         """
-        # 00:30, 01:30, 02:30,..., 23:30
-        # the values represent the centers of the hourly bins
-        # get every nth element where n is images_per_day
+        # get every nth element where n is specified by "temporal_sampling"
         img_offsets = np.array([timedelta(hours=i, minutes=30)
                                 for i in list(range(24))[::self.temporal_sampling]])
 
@@ -538,9 +524,8 @@ class MERRA2_Ds(MultiTemporalImageBase):
 
 class MERRA2_Ts(GriddedNcOrthoMultiTs):
     """
-    Read reshuffled hourly or monthly merra2 ts data under a given path.
+    Read MERRA2 time series data under a given path.
     """
-
     def __init__(self, ts_path=None, grid_path=None, **kwargs):
         """
         Initialize MERRA2_Ts object with path to data repository. Use to read
@@ -549,9 +534,26 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
         Parameters
         ----------
         ts_path : string
-            path to the nc files
+            path to the nc file directory
         grid_path : string
             path to grid.nc file
+
+        Optional keyword arguments that are passed to the Gridded Base:
+        ------------------------------------------------------------------------
+        parameters : list, optional (default: None)
+            Specific variable names to read, if None are selected, all are read.
+        ioclass_kws: dict
+
+        Optional keyword arguments to pass to OrthoMultiTs class:
+        ----------------------------------------------------------------
+            read_bulk : boolean, optional (default:False)
+                if set to True the data of all locations is read into memory,
+                and subsequent calls to read_ts read from the cache and not from disk
+                this makes reading complete files faster#
+            read_dates : boolean, optional (default:False)
+                if false dates will not be read automatically but only on specific
+                request useable for bulk reading because currently the netCDF
+                num2date routine is very slow for big datasets
         """
 
         if grid_path is None:
@@ -562,60 +564,19 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
 
 
 if __name__ == '__main__':
-    import time
     import matplotlib.pyplot as plt
-    from datetime import datetime
 
-    # temporal sampling test
-    path_6h = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4_6hourly'
+    # specify path to data folder
+    path = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4_6hourly'
 
     # find gpi for given lon and lat
     lon, lat = (16.375, 48.125)
 
-    t1_start = time.perf_counter()
     # read data
-    merra_reader = MERRA2_Ts(ts_path=path_6h, ioclass_kws={'read_bulk':True})
-    ts_6h = merra_reader.read(lon, lat)
-    t1_stop = time.perf_counter()
-    ts_6h[['SFMC', 'GWETTOP']].plot(figsize=(20,10), subplots=True)
+    merra_reader = MERRA2_Ts(ts_path=path, ioclass_kws={'read_bulk':True})
+    ts = merra_reader.read(lon, lat)
+    ts.plot(figsize=(20, 10), subplots=True)
+
+    # show plot
+    plt.tight_layout()
     plt.show()
-
-
-    print("Elapsed time: %.1f [sec]" % ((t1_stop - t1_start)))
-
-    """
-    path = "/home/fzaussin/shares/radar/Datapool_raw/" \
-           "Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4"
-    image_stack = MERRA2_Ds(data_path=path, temporal_sampling=24)
-    start = datetime(1980, 1, 1, 0, 30)
-    end = datetime(1980, 1, 1, 23, 30)
-
-    stack_tstamps = image_stack.tstamps_for_daterange(start_date=start,
-                                                      end_date=end)
-    print(stack_tstamps)
-    print(len(stack_tstamps))
-
-    # read an hourly image file
-
-    path = '/home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4/1980/01/MERRA2_100.tavg1_2d_lnd_Nx.19800101.nc4'
-    date = datetime(1980, 1, 1, 23, 30)
-
-    img = MERRA_Img_h(path)
-    f = img.read(timestamp=date)
-
-    # find gpi for given lon and lat
-    lon, lat = (37.5, 2.5)
-    # read data
-    ts = MERRA2_Ts(ts_path='/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4').read(lon, lat)
-    # since the current data only represents data values at the timestamp 00:30,
-    # we resample to daily resolution, keeping only the 00:30 values
-    #ts_daily = ts.resample('D').mean()
-    #ts = ts.resample('D').mean()
-    #ts[['SFMC', 'PRECTOTLAND']].plot(title='MERRA2 data hourly data')
-    #ts['SFMC'].plot(title='monthly sm ts')
-    print(ts)
-    #plt.show()
-
-    """
-
-
