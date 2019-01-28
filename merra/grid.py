@@ -31,7 +31,6 @@ Created on 02-02-2017
 import numpy as np
 from pygeogrids.grids import BasicGrid
 
-
 def MERRACellgrid():
     """
     Class implementing the asymmetrical GMAO 0.5 x 0.625 grid.
@@ -40,7 +39,7 @@ def MERRACellgrid():
     -------
     BasicGrid instance
     """
-    # asymmetrical grid
+    # define horizontal and vertical resolution of asymmetrical grid
     lon_res = 0.625
     lat_res = 0.5
 
@@ -50,13 +49,3 @@ def MERRACellgrid():
         np.arange(-90, 90 + lat_res / 2, lat_res)
     )
     return BasicGrid(lon.flatten(), lat.flatten()).to_cell_grid(cellsize=5.)
-
-
-if __name__ == "__main__":
-    # TEST
-    gpis, lons, lats, cells = MERRACellgrid().get_grid_points()
-    print(gpis)
-    print(lons, lats)
-
-    cells = MERRACellgrid().get_cells()
-    print(cells)
