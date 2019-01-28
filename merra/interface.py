@@ -464,7 +464,7 @@ class MERRA2_Ds(MultiTemporalImageBase):
     # TODO: Just skip images in a regular way. i.e., for daily res take the 00:30 value, for 6h res take 00:30, 06:30, 12:30, 18:30
 
     def __init__(self, data_path, parameter='SFMC',
-                 temporal_sampling=24, array_1D=False):
+                 temporal_sampling=6, array_1D=False):
         """
         Initialize MERRA2_Ds_1h object with a given path.
 
@@ -541,7 +541,7 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
     Read reshuffled hourly or monthly merra2 ts data under a given path.
     """
 
-    def __init__(self, ts_path=None, grid_path=None):
+    def __init__(self, ts_path=None, grid_path=None, **kwargs):
         """
         Initialize MERRA2_Ts object with path to data repository. Use to read
         time series data at a given location.
@@ -558,23 +558,30 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
             grid_path = os.path.join(ts_path, "grid.nc")
 
         grid = pygeogrids.netcdf.load_grid(grid_path)
-        super(MERRA2_Ts, self).__init__(ts_path, grid)
+        super(MERRA2_Ts, self).__init__(ts_path, grid, **kwargs)
 
 
 if __name__ == '__main__':
+    import time
     import matplotlib.pyplot as plt
     from datetime import datetime
 
     # temporal sampling test
-    path_6h = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4_6h_temporal_sampling_test'
+    path_6h = '/home/fzaussin/shares/radar/Datapool_processed/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4_6hourly'
 
     # find gpi for given lon and lat
     lon, lat = (16.375, 48.125)
 
+    t1_start = time.perf_counter()
     # read data
-    ts_6h = MERRA2_Ts(ts_path=path_6h).read(lon, lat)
+    merra_reader = MERRA2_Ts(ts_path=path_6h, ioclass_kws={'read_bulk':True})
+    ts_6h = merra_reader.read(lon, lat)
+    t1_stop = time.perf_counter()
     ts_6h[['SFMC', 'GWETTOP']].plot(figsize=(20,10), subplots=True)
     plt.show()
+
+
+    print("Elapsed time: %.1f [sec]" % ((t1_stop - t1_start)))
 
     """
     path = "/home/fzaussin/shares/radar/Datapool_raw/" \
