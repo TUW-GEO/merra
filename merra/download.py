@@ -175,12 +175,10 @@ def parse_args(args):
     parser.add_argument("-e", "--end", type=mkdate,
                         help=("Enddate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."
                               "If not given then the current date is used."))
-    # TODO: adapt help_string
     help_string = '\n'.join(['MERRA2 product to download.',
                              'M2T1NXLND.5.12.4 available from {}'])
     help_string = help_string.format(get_start_date('M2T1NXLND.5.12.4'))
 
-    # TODO: adapt choices and default
     parser.add_argument("--product", choices=["M2T1NXLND.5.12.4"], default="M2T1NXLND.5.12.4",
                         help=help_string)
     parser.add_argument("--username",
@@ -205,14 +203,12 @@ def parse_args(args):
                 if args.product:
                     args.start = get_start_date(args.product)
                 else:
-                    # TODO: adapt
                     args.start = get_start_date('M2T1NXLND.5.12.4')
             else:
                 args.start = last
         if args.end is None:
             args.end = datetime.now()
 
-    # TODO: adapt prod_urls
     prod_urls = {'M2T1NXLND.5.12.4':
                  {'root': 'https://goldsmr4.gesdisc.eosdis.nasa.gov',
                   'dirs': ['data', 'MERRA2', 'M2T1NXLND.5.12.4',
