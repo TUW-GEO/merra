@@ -227,11 +227,12 @@ def parse_args(args):
 
 
 def main(args):
+    print("Args BEFORE parsing: ", args)
     args = parse_args(args)
+    print("Args AFTER parsing: ", args)
 
     dts = list(daily(args.start, args.end))
-    print(dts)
-    fname = '' #"MERRA2_100.tavg1_2d_lnd_Nx.{time:%Y%m%d}.nc4"
+    fname = ""
     url_create_fn = partial(create_dt_url, root=args.urlroot,
                             fname=fname, subdirs=args.urlsubdirs)
     fname_create_fn = partial(create_dt_fpath, root=args.localroot,
@@ -250,6 +251,15 @@ def run():
     main(sys.argv[1:])
 
 if __name__ == '__main__':
-    run()
-    # python3 download.py /home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/M2T1NXLND.5.12.4 -s 2017-11-01 -e 2018-11-30 --username fzaussin --password HeT8zzDzOEea
+    # python3 download.py /home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/download_test -s 1980-01-01 -e 1980-02-25 --username fzaussin --password HeT8zzDzOEea
     # python3 download.py /home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/download_test_2018 -s 2018-10-01 -e 2018-11-30 --username fzaussin --password HeT8zzDzOEea --n_proc 8
+
+    # define args
+    args = ['/home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/download_test',
+            '-s', '1990-12-20',
+            '-e', '1991-01-10',
+            '--username', 'fzaussin',
+            '--password', 'HeT8zzDzOEea']
+
+    # run command line script here for debugging
+    main(args)
