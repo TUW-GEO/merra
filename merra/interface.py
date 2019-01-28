@@ -573,7 +573,9 @@ if __name__ == '__main__':
     lon, lat = (16.375, 48.125)
 
     # read data
-    merra_reader = MERRA2_Ts(ts_path=path, ioclass_kws={'read_bulk':True})
+    merra_reader = MERRA2_Ts(ts_path=path,
+                             ioclass_kws={'read_bulk':True},
+                             parameters=['SFMC'])
     ts = merra_reader.read(lon, lat)
     ts.plot(figsize=(20, 10), subplots=True)
 
