@@ -43,7 +43,7 @@ def MERRACellgrid():
     lon_res = 0.625
     lat_res = 0.5
 
-    # create 361 x 576 mesh grid
+    # create 361 (lat) x 576 (lon) mesh grid
     lon, lat = np.meshgrid(
         np.arange(-180, 180, lon_res),
         np.arange(-90, 90 + lat_res / 2, lat_res)
