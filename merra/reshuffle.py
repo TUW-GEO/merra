@@ -60,7 +60,7 @@ def reshuffle(in_path,
               start_date,
               end_date,
               parameters,
-              temporal_sampling=24,
+              temporal_sampling=6,
               img_buffer=50):
     """
     Reshuffle method applied to MERRA2 data.
