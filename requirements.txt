@@ -5,9 +5,9 @@ pygeobase
 datedown>=0.3
 trollsift
 pytesmo
-netcdf4
+netcdf4==1.2.8
 pyresample
 repurpose
-pynetcf
+pynetcf==0.1.18
 monthdelta
 datetime
