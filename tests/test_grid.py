@@ -12,11 +12,10 @@ class Test(unittest.TestCase):
         """
         grid = MERRACellgrid()
         assert grid.activegpis.size == 207936
-        assert grid.activegpis[153426] == 153426
-        assert grid.activearrcell[153426] == 962
-        assert grid.activearrlat[153426] == 43.0
-        assert grid.activearrlon[153426] == -48.75
-        return None
+        assert grid.activegpis[159290] == 159290
+        assert grid.activearrcell[159290] == 1431
+        assert grid.activearrlat[159290] == 48.0
+        assert grid.activearrlon[159290] == 16.25
 
 if __name__ == "__main__":
     unittest.main()
