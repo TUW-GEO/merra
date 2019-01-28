@@ -18,7 +18,7 @@ class Test(unittest.TestCase):
 
         # create image object based on test file
         img = MERRA_Img(os.path.join(os.path.dirname(__file__),
-                                     'testdata',
+                                     'merra-test-data',
                                      'M2T1NXLND.5.12.4',
                                      '2018',
                                      '10',
@@ -55,7 +55,7 @@ class Test(unittest.TestCase):
 
         # create image object based on test file
         img = MERRA_Img(os.path.join(os.path.dirname(__file__),
-                                     'testdata',
+                                     'merra-test-data',
                                      'M2T1NXLND.5.12.4',
                                      '2018',
                                      '10',
@@ -99,7 +99,7 @@ class Test(unittest.TestCase):
 
         # create image stack object based on test file directory
         img = MERRA2_Ds(os.path.join(os.path.dirname(__file__),
-                                     'testdata',
+                                     'merra-test-data',
                                      'M2T1NXLND.5.12.4'),
                         parameter=parameters,
                         array_1D=True,
@@ -137,7 +137,7 @@ class Test(unittest.TestCase):
 
         # create image stack object based on test file directory
         img = MERRA2_Ds(os.path.join(os.path.dirname(__file__),
-                                     'testdata',
+                                     'merra-test-data',
                                      'M2T1NXLND.5.12.4'),
                         parameter=parameters,
                         array_1D=True,

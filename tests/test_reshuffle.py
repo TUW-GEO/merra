@@ -19,7 +19,7 @@ class Test(unittest.TestCase):
         """
         # specify resampling parameters
         inpath = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                              'testdata', 'M2T1NXLND.5.12.4')
+                              'merra-test-data', 'M2T1NXLND.5.12.4')
         startdate = '2018-10-01'
         enddate = '2018-10-01'
         parameters = ['SFMC']
