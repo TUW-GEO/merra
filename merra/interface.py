@@ -549,7 +549,7 @@ class MERRA2_Ts(GriddedNcOrthoMultiTs):
             read_bulk : boolean, optional (default:False)
                 if set to True the data of all locations is read into memory,
                 and subsequent calls to read_ts read from the cache and not from disk
-                this makes reading complete files faster#
+                this makes reading complete files faster
             read_dates : boolean, optional (default:False)
                 if false dates will not be read automatically but only on specific
                 request useable for bulk reading because currently the netCDF
