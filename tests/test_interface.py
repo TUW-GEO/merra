@@ -9,7 +9,6 @@ class Test(unittest.TestCase):
     """
     Testing base class
     """
-
     def test_img_reading_1D(self):
         """
         Test if netCDF image file is correctly read in 1D.
