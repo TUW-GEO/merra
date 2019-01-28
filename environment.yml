@@ -1,0 +1,17 @@
+name: merra2
+channels:
+  - conda-forge
+dependencies:
+- matplotlib
+- pandas
+- netcdf4==1.2.8
+- scipy
+- pyresample
+- pip:
+    - pygeobase
+    - pynetcf==0.1.18
+    - repurpose
+    - pytesmo
+    - datedown>=0.3
+    - trollsift
+    - monthdelta
