@@ -1,0 +1,6 @@
+[submodule "merra-test-data"]
+	path = merra-test-data
+	url = https://www.geo.tuwien.ac.at/downloads/gittd/merra-test-data.git/
+[submodule "tests/merra-test-data"]
+	path = tests/merra-test-data
+	url = https://www.geo.tuwien.ac.at/downloads/gittd/merra-test-data.git/
