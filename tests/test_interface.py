@@ -2,10 +2,8 @@
 import os
 import unittest
 import numpy.testing as npt
-import numpy as np
 from datetime import datetime
 from merra.interface import MERRA_Img, MERRA2_Ds
-from merra.grid import MERRACellgrid
 
 class Test(unittest.TestCase):
     """
