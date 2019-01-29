@@ -96,6 +96,22 @@ def folder_get_version_first_last(
 
 
 def get_last_folder(root, subpaths):
+    """
+    ...
+
+    Parameters
+    ----------
+    root : string
+        ...
+    subpaths : list of strings
+        ...
+
+    Returns
+    -------
+    directory : list of strings
+        ...
+
+    """
     directory = root
     for level, subpath in enumerate(subpaths):
         last_dir = get_last_formatted_dir_in_dir(directory, subpath)
@@ -107,6 +123,21 @@ def get_last_folder(root, subpaths):
 
 
 def get_first_folder(root, subpaths):
+    """
+    ...
+
+    Parameters
+    ----------
+    root : string
+        ...
+    subpaths : list of strings
+        ...
+
+    Returns
+    -------
+    directory : list of strings
+        ...
+    """
     directory = root
     for level, subpath in enumerate(subpaths):
         last_dir = get_first_formatted_dir_in_dir(directory, subpath)
@@ -121,6 +152,19 @@ def get_last_formatted_dir_in_dir(folder, fmt):
     """
     Get the (alphabetically) last directory in a directory
     which can be formatted according to fmt.
+
+    Parameters
+    ----------
+    folder : string
+        path to folder
+    fmt : ...
+        formatting rule
+
+    Returns
+    -------
+    last_elem: string
+        path to last directory
+
     """
     last_elem = None
     root_elements = sorted(os.listdir(folder))
@@ -136,6 +180,18 @@ def get_first_formatted_dir_in_dir(folder, fmt):
     """
     Get the (alphabetically) first directory in a directory
     which can be formatted according to fmt.
+
+    Parameters
+    ----------
+    folder : string
+        path to folder
+    fmt : ...
+        formatting rule
+
+    Returns
+    -------
+    first_elem: string
+        path to last directory
     """
     first_elem = None
     root_elements = sorted(os.listdir(folder))
@@ -150,8 +206,17 @@ def get_first_formatted_dir_in_dir(folder, fmt):
 def get_start_date(product):
     """
     Define start date of product version.
-    :param product:
-    :return:
+
+    Parameters
+    ----------
+    product : string
+        product specification
+
+    Returns
+    -------
+    datetime : datetime.datetime
+        timestamp of start date
+
     """
     dt_dict = {'M2T1NXLND.5.12.4': datetime(1980, 1, 1)}
     return dt_dict[product]
@@ -160,8 +225,16 @@ def get_start_date(product):
 def parse_args(args):
     """
     Parse command line parameters for recursive download
-    :param args: command line parameters as list of strings
-    :return: command line parameters as :obj:`argparse.Namespace`
+
+    Parameters
+    ----------
+    args : list of strings
+        command line parameters
+
+    Returns
+    -------
+    args: argparse.Namespace object
+        command line parameters
     """
     parser = argparse.ArgumentParser(
         description="Download MERRA2 hourly data.",
@@ -215,9 +288,7 @@ def parse_args(args):
                            '%Y', '%m']}}
 
     args.urlroot = prod_urls[args.product]['root']
-    print('urlroot', args.urlroot)
     args.urlsubdirs = prod_urls[args.product]['dirs']
-    print('urlsubdirs', args.urlsubdirs)
     args.localsubdirs = ['%Y', '%m']
 
     print("Downloading data from {} to {} into folder {}.".format(args.start.isoformat(),
@@ -227,9 +298,7 @@ def parse_args(args):
 
 
 def main(args):
-    print("Args BEFORE parsing: ", args)
     args = parse_args(args)
-    print("Args AFTER parsing: ", args)
 
     dts = list(daily(args.start, args.end))
     fname = ""
