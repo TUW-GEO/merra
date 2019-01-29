@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 # The MIT License (MIT)
 #
-# Copyright (c) 2016, TU Wien
+# Copyright (c) 2019, TU Wien
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,13 +21,8 @@
 # SOFTWARE.
 
 """
-Created on 02-02-2017
-
-@author: fzaussin
-@email: felix.zaussinger@geo.tuwien.ac.at
-
-Module for a command line interface to convert the MERRA2 data into a
-time series format using the repurpose package.
+The reshuffle module implements a command line interface to convert the MERRA2
+data into a time series format using the repurpose package.
 
 USAGE in terminal:
 reshuffle.py [-h] [--imgbuffer IMGBUFFER]
@@ -43,16 +37,28 @@ import argparse
 from datetime import datetime
 
 from repurpose.img2ts import Img2Ts
-from merra.interface import MERRA2_Ds_monthly, MERRA2_Ds
+from merra.interface import MERRA2_Ds
 from pygeogrids import BasicGrid
 
+def mkdate(date_string):
+    """
+    Define date/month string
 
-# define date/month string
-def mkdate(datestring):
-    if len(datestring) == 10:
-        return datetime.strptime(datestring, '%Y-%m-%d')
-    if len(datestring) == 16:
-        return datetime.strptime(datestring, '%Y-%m-%dT%H:%M')
+    Parameters
+    ----------
+    date_string : string
+        Date information in the filename
+
+    Returns
+    -------
+    datetime : datetime.datetime object
+        datetime object created from a string
+
+    """
+    if len(date_string) == 10:
+        return datetime.strptime(date_string, '%Y-%m-%d')
+    if len(date_string) == 16:
+        return datetime.strptime(date_string, '%Y-%m-%dT%H:%M')
 
 
 def reshuffle(in_path,
