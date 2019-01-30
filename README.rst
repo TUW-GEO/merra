@@ -8,8 +8,8 @@ merra
 .. image:: https://coveralls.io/repos/github/TUW-GEO/merra/badge.svg?branch=master
    :target: https://coveralls.io/github/TUW-GEO/merra?branch=master
 
-.. image:: https://readthedocs.org/projects/merra/badge/?version=latest
-   :target: http://merra.readthedocs.org/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/merra2/badge/?version=latest
+   :target: https://merra2.readthedocs.io/en/latest/?badge=latest
 
 The package provides readers and converters for the MERRA2 data in a similiar
 manner like the gldas package.
