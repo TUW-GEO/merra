@@ -23,11 +23,12 @@ program. An example would be:
 
 .. code-block:: shell
 
-   merra_repurpose /merra2_data /timeseries/data 2000-01-01 2018-11-30 SFMC RZMC
+   merra_repurpose /merra2_data /timeseries/data -s 2000-01-01 -e 2018-11-30 --parameters SFMC RZMC --temporal_sampling 6
 
 Which would take MERRA-2 data stored in ``/merra2_data`` from January 1st 2000
-to November 30th 2018 and store the parameters for surface (SFMC) and root
-zone soil moisture (RZMC) as time series in the folder ``/timeseries/data``.
+to November 30th 2018 and store the parameters for 6-hourly sampled surface
+(SFMC) and root zone soil moisture (RZMC) as time series
+in the folder ``/timeseries/data``.
 
 Conversion to time series is performed by the `repurpose package
 <https://github.com/TUW-GEO/repurpose>`_ in the background. For custom settings
