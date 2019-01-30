@@ -150,9 +150,9 @@ def parse_args(args):
                         help='Root of local filesystem where the data is stored.')
     parser.add_argument("timeseries_root",
                         help='Root of local filesystem where the timeseries will be stored.')
-    parser.add_argument("-s", "--start", type=mkdate,
+    parser.add_argument("--start", type=mkdate,
                         help=("Startdate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."))
-    parser.add_argument("-e", "--end", type=mkdate,
+    parser.add_argument("--end", type=mkdate,
                         help=("Enddate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."))
     parser.add_argument("parameters", metavar="parameters",
                         nargs="+",
