@@ -28,7 +28,6 @@ param_list = ['TSOIL1', 'TSOIL2', 'TSOIL3', 'TSOIL4', 'TSOIL5', 'TSOIL6', 'TSURF
               'GWETPROF', 'GWETROOT', 'GWETTOP',
               'SNOMAS', 'PRECSNOLAND', 'PRECTOTLAND']
 
-#param_list = ['SFMC']
 
 if __name__ == '__main__':
     import time, datetime
