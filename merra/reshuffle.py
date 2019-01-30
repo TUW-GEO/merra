@@ -150,20 +150,20 @@ def parse_args(args):
                         help='Root of local filesystem where the data is stored.')
     parser.add_argument("timeseries_root",
                         help='Root of local filesystem where the timeseries will be stored.')
-    parser.add_argument("--start", type=mkdate,
+    parser.add_argument("start", type=mkdate,
                         help=("Startdate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."))
-    parser.add_argument("--end", type=mkdate,
+    parser.add_argument("end", type=mkdate,
                         help=("Enddate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."))
     parser.add_argument("parameters", metavar="parameters",
                         nargs="+",
                         help=("Parameters to download in numerical format."))
-    """
+
     parser.add_argument("--temporal_sampling", type=int, default=6,
                         help=(
                         "The temporal sampling of the output time series. "
                         "Integers between 1 (1-hourly resolution) and 24 "
                         "(daily resolution) are possible."))
-    """
+
     parser.add_argument("--imgbuffer", type=int, default=50,
                         help=("How many images to read at once. Bigger numbers make the "
                               "conversion faster but consume more memory."))
