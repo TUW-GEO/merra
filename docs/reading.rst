@@ -1,66 +1,65 @@
-Reading GLDAS images
---------------------
+Reading MERRA-2 images
+----------------------
 
-Reading of the GLDAS raw grib files can be done in two ways.
+Reading of the MERRA-2 netcdf files can be done in two ways:
 
-Reading by file name
-~~~~~~~~~~~~~~~~~~~~
+1) Reading by file name
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
     import os
     from datetime import datetime
-    from gldas.interface import GLDAS_Noah_v1_025Img
+    from merra.interface import MERRA_Img
 
-    # read several parameters
-    parameter = ['086_L2', '086_L1', '085_L1', '138', '132', '051']
+    # parameters to read
+    param_list = ['SFMC', 'RZMC', 'PRECTOTLAND', 'TSOIL1']
+
+    # timestamp (needed because there are 24 hourly simulations within
+    # each file (3D-stack), so you need to choose one to return a 2D image)
+    timestamp = datetime(2018, 10, 1, 0, 30)
+
     # the class is initialized with the exact filename.
-    img = GLDAS_Noah_v1_025Img(os.path.join(os.path.dirname(__file__),
-                                            'test-data',
-                                            'GLDAS_NOAH_image_data',
-                                            '2015',
-                                            '001',
-                                            'GLDAS_NOAH025SUBP_3H.A2015001.0000.001.2015037193230.grb'),
-                              parameter=parameter)
+    img = MERRA_Img(os.path.join(os.path.dirname(__file__),
+                                 'merra-test-data',
+                                 'M2T1NXLND.5.12.4',
+                                 '2018',
+                                 '10',
+                                 'MERRA2_400.tavg1_2d_lnd_Nx.20181001.nc4'),
+                              parameter=param_list)
 
     # reading returns an image object which contains a data dictionary
-    # with one array per parameter. The returned data is a global 0.25 degree
-    # image/array.
-    image = img.read()
+    # with one array per parameter. The returned data is a global image/array
+    # with shape (361, 576)
+    image = img.read(timestamp=timestamp)
+    data = image.data
 
-    assert image.data['086_L1'].shape == (720, 1440)
-    assert image.lon[0, 0] == -179.875
-    assert image.lon[0, 1439] == 179.875
-    assert image.lat[0, 0] == 89.875
-    assert image.lat[719, 0] == -89.875
-    assert sorted(image.data.keys()) == sorted(parameter)
-    assert image.data['086_L1'][26, 609] == 30.7344
-    assert image.data['086_L2'][26, 609] == 93.138
-    assert image.data['085_L1'][576, 440] == 285.19
-    assert image.data['138'][26, 609] == 237.27
-    assert image.data['051'][26, 609] == 0
-    assert image.lon.shape == (720, 1440)
-    assert image.lon.shape == image.lat.shape
+2) Reading by date
+~~~~~~~~~~~~~~~~~~
 
-Reading by date
-~~~~~~~~~~~~~~~
-
-All the gldas data in a directory structure can be accessed by date.
+All the MERRA-2 data in a directory structure can be accessed by date.
 The filename is automatically built from the given date.
 
 .. code-block:: python
 
-    from gldas.interface import GLDAS_Noah_v1_025Ds
+    from merra.interface import MERRA2_Ds
 
-    parameter = ['086_L2', '086_L1', '085_L1', '138', '132', '051']
-    img = GLDAS_Noah_v1_025Ds(data_path=os.path.join(os.path.dirname(__file__),
-                                                    'test-data',
-                                                    'GLDAS_NOAH_image_data'),
-                              parameter=parameter)
+    # parameters to read
+    param_list = ['SFMC', 'RZMC', 'PRECTOTLAND', 'TSOIL1']
 
-    image = img.read(datetime(2015, 1, 1, 0))
+    # initializes an image stack class given the path to the data directory
+    # the class knows about the default folder structure down the line
+    img_stack = MERRA2_Ds(data_path=os.path.join(os.path.dirname(__file__),
+                                                 'merra-test-data',
+                                                 'M2T1NXLND.5.12.4'),
+                              parameter=param_list)
 
+    # timestamp
+    timestamp = datetime(2018, 10, 1, 0, 30)
+
+    # read one image out of the stack at specific timestamp
+    image = img_stack.read(timestamp=timestamp)
 
 For reading all image between two dates the
-:py:meth:`gldas.interface.GLDAS_Noah_v1_025Ds.iter_images` iterator can be
+:py:meth:`merra.interface.MERRA2_Ds.iter_images` iterator can be
 used.
