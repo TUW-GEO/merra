@@ -1,9 +1,9 @@
 Variables of interest for MERRA-2
 ==================================
 
-A full list of variable names can be found in the `MERRA-2 README <https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2T1NXLND.5.12.4/doc/MERRA2.README.pdf>`_
+A full list of variable names can be found in the `MERRA-2 README <https://goldsmr4.gesdisc.eosdis.nasa.gov/data/MERRA2/M2T1NXLND.5.12.4/doc/MERRA2.README.pdf>`_ provided by NASA.
 
-+-------------+-----------------------+-------------------------------------------+-----------------------------+--------------+
++-------------+---------------------------------------+---------------------------+---------------+-------------+--------------+
 | Short name  | Long name                             | Parameter                 | Resolution    | Depth [m]   | Units        |
 +=============+=======================================+===========================+===============+=============+==============+
 | SFMC        | water_surface_layer                   | Soil moisture             | 0.5° x 0.625° | 0.00 - 0.05 | [m-3 m-3]    |
