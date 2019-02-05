@@ -31,7 +31,7 @@ import numpy as np
 import monthdelta
 from datetime import timedelta
 from netCDF4 import Dataset
-from merra.grid import MERRACellgrid
+from merra.grid import create_merra_cell_grid
 
 import pygeogrids
 from pygeobase.io_base import ImageBase, MultiTemporalImageBase
@@ -67,7 +67,7 @@ class MerraImage(ImageBase):
             parameter = [parameter]
         self.parameters = parameter
         self.fill_values = np.repeat(1e15, 361 * 576)
-        self.grid = MERRACellgrid()
+        self.grid = create_merra_cell_grid()
         self.array_1D = array_1D
         self.filename = filename
 
