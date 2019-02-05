@@ -45,9 +45,10 @@ def folder_get_version_first_last(
         root,
         fmt="MERRA2_100.tavg1_2d_lnd_Nx.{time:%Y%m%d}.nc4",
         subpaths=['{time:%Y}', '{time:%m}']):
-
     """
-    Get product version and first and last product which exists under the root folder.
+    Get product version and first and last product
+    which exists under the root folder.
+
     Parameters
     ----------
     root: string
@@ -239,27 +240,43 @@ def parse_args(args):
     parser = argparse.ArgumentParser(
         description="Download MERRA2 hourly data.",
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("localroot",
-                        help='Root of local filesystem where the data is stored.')
-    parser.add_argument("-s", "--start", type=mkdate,
-                        help=("Startdate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."
-                              "If not given then the target folder is scanned for a start date."
-                              "If no data is found there then the first available date of the product is used."))
-    parser.add_argument("-e", "--end", type=mkdate,
-                        help=("Enddate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."
-                              "If not given then the current date is used."))
+    parser.add_argument(
+        "localroot",
+        help='Root of local filesystem where the data is stored.')
+    parser.add_argument(
+        "-s",
+        "--start",
+        type=mkdate,
+        help=(
+            "Startdate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."
+            "If not given then the target folder is scanned for a start date."
+            "If no data is found there then the first available "
+            "date of the product is used."))
+    parser.add_argument(
+        "-e",
+        "--end",
+        type=mkdate,
+        help=(
+            "Enddate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."
+            "If not given then the current date is used."))
     help_string = '\n'.join(['MERRA2 product to download.',
                              'M2T1NXLND.5.12.4 available from {}'])
     help_string = help_string.format(get_start_date('M2T1NXLND.5.12.4'))
 
-    parser.add_argument("--product", choices=["M2T1NXLND.5.12.4"], default="M2T1NXLND.5.12.4",
-                        help=help_string)
+    parser.add_argument(
+        "--product",
+        choices=["M2T1NXLND.5.12.4"],
+        default="M2T1NXLND.5.12.4",
+        help=help_string)
     parser.add_argument("--username",
                         help='Username to use for download.')
     parser.add_argument("--password",
                         help='password to use for download.')
-    parser.add_argument("--n_proc", default=1, type=int,
-                        help='Number of parallel processes to use for downloading.')
+    parser.add_argument(
+        "--n_proc",
+        default=1,
+        type=int,
+        help='Number of parallel processes to use for downloading.')
     args = parser.parse_args(args)
     # set defaults that can not be handled by argparse
 
@@ -267,7 +284,9 @@ def parse_args(args):
     version, first, last = folder_get_version_first_last(args.localroot)
     if args.product and version and (args.product != version):
         raise Exception(
-            'Error: Found products of different version ({}) in {}. Abort download!'.format(version, args.localroot))
+            'Error: Found products of different '
+            'version ({}) in {}. Abort download!'.format(
+                version, args.localroot))
     if args.start is None or args.end is None:
         if not args.product:
             args.product = version
@@ -291,9 +310,8 @@ def parse_args(args):
     args.urlsubdirs = prod_urls[args.product]['dirs']
     args.localsubdirs = ['%Y', '%m']
 
-    print("Downloading data from {} to {} into folder {}.".format(args.start.isoformat(),
-                                                                  args.end.isoformat(),
-                                                                  args.localroot))
+    print("Downloading data from {} to {} into folder {}.".format(
+        args.start.isoformat(), args.end.isoformat(), args.localroot))
     return args
 
 
@@ -316,19 +334,25 @@ def main(args):
                    fname_create_fn, down_func,
                    recursive=True)
 
+
 def run():
     main(sys.argv[1:])
 
+
 if __name__ == '__main__':
-    # python3 download.py /home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/download_test -s 1980-01-01 -e 1980-02-25 --username fzaussin --password HeT8zzDzOEea
-    # python3 download.py /home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/download_test_2018 -s 2018-10-01 -e 2018-11-30 --username fzaussin --password HeT8zzDzOEea --n_proc 8
 
     # define args
-    args = ['/home/fzaussin/shares/radar/Datapool_raw/Earth2Observe/MERRA2/datasets/download_test',
-            '-s', '1990-12-20',
-            '-e', '1991-01-10',
-            '--username', 'fzaussin',
-            '--password', 'HeT8zzDzOEea']
+    args = [
+        '/home/fzaussin/shares/radar/Datapool_raw/'
+        'Earth2Observe/MERRA2/datasets/download_test',
+        '-s',
+        '1990-12-20',
+        '-e',
+        '1991-01-10',
+        '--username',
+        'fzaussin',
+        '--password',
+        'HeT8zzDzOEea']
 
     # run command line script here for debugging
     main(args)
