@@ -8,10 +8,12 @@ import unittest
 from merra.reshuffle import main
 from merra.interface import MerraTs
 
+
 class Test(unittest.TestCase):
     """
     Testing base class
     """
+
     def test_reshuffle(self):
         """
         Create time series with 6-hourly sampling from one day of data.
@@ -40,6 +42,7 @@ class Test(unittest.TestCase):
                                      0.214836, 0.220690],
                                     dtype=np.float32)
         npt.assert_allclose(ts['SFMC'].values, ts_values_should, rtol=1e-5)
+
 
 if __name__ == "__main__":
     unittest.main()
