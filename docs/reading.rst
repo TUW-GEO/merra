@@ -10,7 +10,7 @@ Reading of the MERRA-2 netcdf files can be done in two ways:
 
     import os
     from datetime import datetime
-    from merra.interface import MERRA_Img
+    from merra.interface import MerraImage
 
     # parameters to read
     param_list = ['SFMC', 'RZMC', 'PRECTOTLAND', 'TSOIL1']
@@ -20,7 +20,7 @@ Reading of the MERRA-2 netcdf files can be done in two ways:
     timestamp = datetime(2018, 10, 1, 0, 30)
 
     # the class is initialized with the exact filename.
-    img = MERRA_Img(os.path.join(os.path.dirname(__file__),
+    img = MerraImage(os.path.join(os.path.dirname(__file__),
                                  'merra-test-data',
                                  'M2T1NXLND.5.12.4',
                                  '2018',
@@ -42,14 +42,14 @@ The filename is automatically built from the given date.
 
 .. code-block:: python
 
-    from merra.interface import MERRA2_Ds
+    from merra.interface import MerraImageStack
 
     # parameters to read
     param_list = ['SFMC', 'RZMC', 'PRECTOTLAND', 'TSOIL1']
 
     # initializes an image stack class given the path to the data directory
     # the class knows about the default folder structure down the line
-    img_stack = MERRA2_Ds(data_path=os.path.join(os.path.dirname(__file__),
+    img_stack = MerraImageStack(data_path=os.path.join(os.path.dirname(__file__),
                                                  'merra-test-data',
                                                  'M2T1NXLND.5.12.4'),
                               parameter=param_list)
@@ -61,5 +61,5 @@ The filename is automatically built from the given date.
     image = img_stack.read(timestamp=timestamp)
 
 For reading all image between two dates the
-:py:meth:`merra.interface.MERRA2_Ds.iter_images` iterator can be
+:py:meth:`merra.interface.MerraImageStack.iter_images` iterator can be
 used.

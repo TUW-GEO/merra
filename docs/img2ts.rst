@@ -55,11 +55,11 @@ Reading converted time series data
 ----------------------------------
 
 For reading the data the ``merra_repurpose`` command produces the class
-``MERRA2_Ts``:
+``MerraTs``:
 
 .. code-block:: python
 
-    from merra.interface import MERRA2_Ts
+    from merra.interface import MerraTs
 
     # specify path to data folder
     path = '../timeseries/data'
@@ -68,9 +68,9 @@ For reading the data the ``merra_repurpose`` command produces the class
     lon, lat = (16.375, 48.125)
 
     # initialize the time series class
-    merra_reader = MERRA2_Ts(ts_path=path,
-                             ioclass_kws={'read_bulk':True},
-                             parameters=['SFMC'])
+    merra_reader = MerraTs(ts_path=path,
+                           ioclass_kws={'read_bulk':True},
+                           parameters=['SFMC'])
 
     # read SFMC time series at the location
     ts = merra_reader.read(lon, lat)
