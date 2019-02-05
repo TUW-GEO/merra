@@ -40,6 +40,7 @@ from repurpose.img2ts import Img2Ts
 from merra.interface import MerraImageStack
 from pygeogrids import BasicGrid
 
+
 def mkdate(date_string):
     """
     Define date/month string
@@ -146,33 +147,38 @@ def parse_args(args):
     """
     parser = argparse.ArgumentParser(
         description="Convert MERRA2 images to time series format.")
-    parser.add_argument("dataset_root",
-                        help='Root of local filesystem where the data is stored.')
-    parser.add_argument("timeseries_root",
-                        help='Root of local filesystem where the timeseries will be stored.')
-    parser.add_argument("start", type=mkdate,
-                        help=("Startdate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."))
-    parser.add_argument("end", type=mkdate,
-                        help=("Enddate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."))
+    parser.add_argument(
+        "dataset_root",
+        help='Root of local filesystem where the data is stored.')
+    parser.add_argument(
+        "timeseries_root",
+        help='Root of local filesystem where the timeseries will be stored.')
+    parser.add_argument("start", type=mkdate, help=(
+        "Startdate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."))
+    parser.add_argument("end", type=mkdate, help=(
+        "Enddate. Either in format YYYY-MM-DD or YYYY-MM-DDTHH:MM."))
     parser.add_argument("parameters", metavar="parameters",
                         nargs="+",
                         help=("Parameters to download in numerical format."))
 
     parser.add_argument("--temporal_sampling", type=int, default=6,
                         help=(
-                        "The temporal sampling of the output time series. "
-                        "Integers between 1 (1-hourly resolution) and 24 "
-                        "(daily resolution) are possible."))
+                            "The temporal sampling of the output time series."
+                            "Integers between 1 (1-hourly resolution) and 24"
+                            "(daily resolution) are possible."))
 
-    parser.add_argument("--imgbuffer", type=int, default=50,
-                        help=("How many images to read at once. Bigger numbers make the "
-                              "conversion faster but consume more memory."))
+    parser.add_argument(
+        "--imgbuffer",
+        type=int,
+        default=50,
+        help=(
+            "How many images to read at once. Bigger numbers make the "
+            "conversion faster but consume more memory."))
 
     args = parser.parse_args(args)
     # set defaults that can not be handled by argparse
-    print("Converting data from {} to {} into folder {}.".format(args.start.isoformat(),
-                                                                 args.end.isoformat(),
-                                                                 args.timeseries_root))
+    print("Converting data from {} to {} into folder {}.".format(
+        args.start.isoformat(), args.end.isoformat(), args.timeseries_root))
     return args
 
 
@@ -189,8 +195,10 @@ def main(args):
               temporal_sampling=args.temporal_sampling,
               img_buffer=args.imgbuffer)
 
+
 def run():
     main(sys.argv[1:])
+
 
 if __name__ == '__main__':
     run()
