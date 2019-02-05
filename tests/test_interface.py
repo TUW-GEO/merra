@@ -29,7 +29,7 @@ class Test(unittest.TestCase):
                 '10',
                 'MERRA2_400.tavg1_2d_lnd_Nx.20181001.nc4'),
             parameter=parameters,
-            array_1D=True)
+            array_1d=True)
 
         # read image for specified timestamp
         image = img.read(timestamp=datetime(2018, 10, 1, 0, 30))
@@ -69,7 +69,7 @@ class Test(unittest.TestCase):
                 '10',
                 'MERRA2_400.tavg1_2d_lnd_Nx.20181001.nc4'),
             parameter=parameters,
-            array_1D=False)
+            array_1d=False)
 
         # read image for specified timestamp
         image = img.read(timestamp=datetime(2018, 10, 1, 0, 30))

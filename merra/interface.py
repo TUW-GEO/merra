@@ -55,12 +55,12 @@ class MerraImage(ImageBase):
         one or list of parameters to read, see MERRA2 documentation
         for more information
         Default : 'SFMC'
-    array_1D: boolean, optional
+    array_1d: boolean, optional
         if set then the data is read into 1D arrays.
         Needed for some legacy code.
     """
 
-    def __init__(self, filename, mode='r', parameter='SFMC', array_1D=False):
+    def __init__(self, filename, mode='r', parameter='SFMC', array_1d=False):
         super(MerraImage, self).__init__(filename, mode=mode)
 
         if not isinstance(parameter, list):
@@ -68,7 +68,7 @@ class MerraImage(ImageBase):
         self.parameters = parameter
         self.fill_values = np.repeat(1e15, 361 * 576)
         self.grid = create_merra_cell_grid()
-        self.array_1D = array_1D
+        self.array_1d = array_1d
         self.filename = filename
 
     def open_file(self):
@@ -161,7 +161,7 @@ class MerraImage(ImageBase):
                         self.grid.n_gpi).fill(np.nan)
                     return_metadata['corrupt_parameters'].append()
 
-        if self.array_1D:
+        if self.array_1d:
             return Image(self.grid.activearrlon,
                          self.grid.activearrlat,
                          return_img,
