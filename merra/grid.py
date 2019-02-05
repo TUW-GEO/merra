@@ -21,16 +21,18 @@
 # SOFTWARE.
 
 """
-The grid module implements the asymmetrical GMAO 0.5 x 0.625 grid used in MERRA2
-as a pygeogrids BasicGrid instance.
+The grid module implements the asymmetrical GMAO 0.5 x 0.625 grid
+used in MERRA2 as a pygeogrids BasicGrid instance.
 """
 
 import numpy as np
 from pygeogrids.grids import BasicGrid
 
-def MERRACellgrid():
+
+def create_merra_cell_grid():
     """
-    Class implementing the asymmetrical GMAO 0.5 x 0.625 grid.
+    Function creates the asymmetrical GMAO 0.5 x 0.625 grid as a
+    BasicGrid instance.
 
     Returns
     -------
