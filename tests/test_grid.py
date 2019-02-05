@@ -1,5 +1,5 @@
 import unittest
-from merra.grid import MERRACellgrid
+from merra.grid import create_merra_cell_grid
 
 class Test(unittest.TestCase):
     """
@@ -10,7 +10,7 @@ class Test(unittest.TestCase):
         Test if the grid remains homogenous.
         :return:
         """
-        grid = MERRACellgrid()
+        grid = create_merra_cell_grid()
         assert grid.activegpis.size == 207936
         assert grid.activegpis[159290] == 159290
         assert grid.activearrcell[159290] == 1431
