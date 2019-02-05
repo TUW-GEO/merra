@@ -6,7 +6,7 @@ import numpy.testing as npt
 import unittest
 
 from merra.reshuffle import main
-from merra.interface import MERRA2_Ts
+from merra.interface import MerraTs
 
 class Test(unittest.TestCase):
     """
@@ -30,9 +30,9 @@ class Test(unittest.TestCase):
         main(args)
 
         # read the resulting time series
-        reader = MERRA2_Ts(ts_path,
-                           ioclass_kws={'read_bulk': True},
-                           parameters=['SFMC'])
+        reader = MerraTs(ts_path,
+                         ioclass_kws={'read_bulk': True},
+                         parameters=['SFMC'])
         ts = reader.read(16.375, 48.125)
 
         # test assertion on soil moisture parameter

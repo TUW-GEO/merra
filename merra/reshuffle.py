@@ -37,7 +37,7 @@ import argparse
 from datetime import datetime
 
 from repurpose.img2ts import Img2Ts
-from merra.interface import MERRA2_Ds
+from merra.interface import MerraImageStack
 from pygeogrids import BasicGrid
 
 def mkdate(date_string):
@@ -95,10 +95,10 @@ def reshuffle(in_path,
     # define input dataset
     # the img_bulk class in img2ts iterates through every nth
     # timestamp as specified by temporal_sampling
-    input_dataset = MERRA2_Ds(data_path=in_path,
-                              parameter=parameters,
-                              temporal_sampling=temporal_sampling,
-                              array_1D=True)
+    input_dataset = MerraImageStack(data_path=in_path,
+                                    parameter=parameters,
+                                    temporal_sampling=temporal_sampling,
+                                    array_1d=True)
     product = 'MERRA2_hourly'
 
     # create out_path directory if it does not exist yet

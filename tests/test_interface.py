@@ -3,7 +3,7 @@ import os
 import unittest
 import numpy.testing as npt
 from datetime import datetime
-from merra.interface import MERRA_Img, MERRA2_Ds
+from merra.interface import MerraImage, MerraImageStack
 
 class Test(unittest.TestCase):
     """
@@ -17,14 +17,14 @@ class Test(unittest.TestCase):
         parameters = ['SFMC', 'RZMC', 'GWETPROF', 'GWETROOT', 'GWETTOP', 'TSURF']
 
         # create image object based on test file
-        img = MERRA_Img(os.path.join(os.path.dirname(__file__),
+        img = MerraImage(os.path.join(os.path.dirname(__file__),
                                      'merra-test-data',
                                      'M2T1NXLND.5.12.4',
                                      '2018',
                                      '10',
                                      'MERRA2_400.tavg1_2d_lnd_Nx.20181001.nc4'),
-                        parameter=parameters,
-                        array_1D=True)
+                         parameter=parameters,
+                         array_1D=True)
 
         # read image for specified timestamp
         image = img.read(timestamp=datetime(2018,10,1,0,30))
@@ -54,14 +54,14 @@ class Test(unittest.TestCase):
         parameters = ['SFMC', 'RZMC', 'GWETPROF', 'GWETROOT', 'GWETTOP', 'TSURF']
 
         # create image object based on test file
-        img = MERRA_Img(os.path.join(os.path.dirname(__file__),
+        img = MerraImage(os.path.join(os.path.dirname(__file__),
                                      'merra-test-data',
                                      'M2T1NXLND.5.12.4',
                                      '2018',
                                      '10',
                                      'MERRA2_400.tavg1_2d_lnd_Nx.20181001.nc4'),
-                        parameter=parameters,
-                        array_1D=False)
+                         parameter=parameters,
+                         array_1D=False)
 
         # read image for specified timestamp
         image = img.read(timestamp=datetime(2018,10,1,0,30))
@@ -98,12 +98,12 @@ class Test(unittest.TestCase):
                       'TSURF']
 
         # create image stack object based on test file directory
-        img = MERRA2_Ds(os.path.join(os.path.dirname(__file__),
+        img = MerraImageStack(os.path.join(os.path.dirname(__file__),
                                      'merra-test-data',
                                      'M2T1NXLND.5.12.4'),
-                        parameter=parameters,
-                        array_1D=True,
-                        temporal_sampling=6)
+                              parameter=parameters,
+                              array_1d=True,
+                              temporal_sampling=6)
 
         image = img.read(timestamp=datetime(2018, 10, 1))
 
@@ -136,12 +136,12 @@ class Test(unittest.TestCase):
                       'TSURF']
 
         # create image stack object based on test file directory
-        img = MERRA2_Ds(os.path.join(os.path.dirname(__file__),
+        img = MerraImageStack(os.path.join(os.path.dirname(__file__),
                                      'merra-test-data',
                                      'M2T1NXLND.5.12.4'),
-                        parameter=parameters,
-                        array_1D=True,
-                        temporal_sampling=6)
+                              parameter=parameters,
+                              array_1d=True,
+                              temporal_sampling=6)
 
         # create timestamps for the default 6-hourly sampling
         tstamps = img.tstamps_for_daterange(start_date=datetime(2018,10,1),
