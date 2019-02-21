@@ -28,7 +28,6 @@ images, image stacks and time series in the native netCDF4 format.
 import os
 import numpy as np
 
-import monthdelta
 from datetime import timedelta
 from netCDF4 import Dataset
 from merra.grid import create_merra_cell_grid

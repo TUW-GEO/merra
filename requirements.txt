@@ -9,5 +9,4 @@ netcdf4==1.2.8
 pyresample
 repurpose
 pynetcf==0.1.18
-monthdelta
 datetime
