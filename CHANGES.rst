@@ -5,6 +5,4 @@ Changelog
 Version 0.1
 ===========
 
-- Feature A added
-- FIX: nasty bug #1729 fixed
-- add your changes here!
+- First release. Support for downloading and reading MERRA-2 M2T1NXLND.5.12.4 data.
