@@ -43,7 +43,7 @@ from datedown.down import download
 
 def folder_get_version_first_last(
         root,
-        fmt="MERRA2_100.tavg1_2d_lnd_Nx.{time:%Y%m%d}.nc4",
+        fmt="MERRA2_{stream}.tavg1_2d_lnd_Nx.{time:%Y%m%d}.nc4",
         subpaths=['{time:%Y}', '{time:%m}']):
     """
     Get product version and first and last product
@@ -80,6 +80,7 @@ def folder_get_version_first_last(
                 os.path.join(
                     first_folder,
                     parser.globify(fmt))))
+        # parse files according to formatting string ({stream} is ignored)
         data = parser.parse(fmt, os.path.split(files[0])[1])
         start = data['time']
         version = 'M2T1NXLND.5.12.4'
@@ -337,22 +338,3 @@ def main(args):
 
 def run():
     main(sys.argv[1:])
-
-
-if __name__ == '__main__':
-
-    # define args
-    args = [
-        '/home/fzaussin/shares/radar/Datapool_raw/'
-        'Earth2Observe/MERRA2/datasets/download_test',
-        '-s',
-        '1990-12-20',
-        '-e',
-        '1991-01-10',
-        '--username',
-        'fzaussin',
-        '--password',
-        'HeT8zzDzOEea']
-
-    # run command line script here for debugging
-    main(args)
