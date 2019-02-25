@@ -3,3 +3,4 @@ pygeobase
 datedown
 trollsift
 sphinx>=1.8.3
+cython >= 0.19
