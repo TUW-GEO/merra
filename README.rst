@@ -28,4 +28,3 @@ The structure of the package is as follows:
 * interface.py : classes for reading a single image, image stacks and time series
 * reshuffle.py : provides a command line utility for reshuffling a stack of 1-hourly sampled native images to time series format with an arbitraty temporal sampling between 1-hour and daily
 * download.py : command line utility for downloading MERRA-2 data from the NASA GES DISC datapool
-* reshuffling_process.py : python interface to the reshuffling command line script
