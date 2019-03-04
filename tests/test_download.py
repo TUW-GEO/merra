@@ -7,6 +7,7 @@ from merra.download import get_first_formatted_dir_in_dir
 from merra.download import get_last_folder
 from merra.download import get_first_folder
 from merra.download import folder_get_version_first_last
+from merra.download import get_start_date
 
 
 class Test(unittest.TestCase):
@@ -76,7 +77,10 @@ class Test(unittest.TestCase):
         assert version == version_should
         assert end == end_should
         assert start == start_should
-    
+
+    def test_get_start_date(self):
+        product = 'M2T1NXLND.5.12.4'
+        assert get_start_date(product) == datetime(1980, 1, 1)
 
 if __name__ == "__main__":
     unittest.main()
