@@ -14,4 +14,3 @@ dependencies:
     - pytesmo
     - datedown>=0.3
     - trollsift
-    - monthdelta
