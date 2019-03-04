@@ -3,6 +3,7 @@ channels:
   - conda-forge
 dependencies:
 - matplotlib
+- numpy
 - pandas
 - netcdf4==1.2.8
 - scipy
