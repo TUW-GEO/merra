@@ -33,12 +33,11 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - conda create -q -n merra2 python=$TRAVIS_PYTHON_VERSION numpy pytest pip netCDF4 pyproj
+  - conda create -q -n merra2 python=$TRAVIS_PYTHON_VERSION
   - source activate merra2
   - conda env update -f environment.yml
   - conda list
   
-  - pip install pygeobase repurpose pynetcf pyresample pytesmo
   - pip list
   - which pip
   - which python
